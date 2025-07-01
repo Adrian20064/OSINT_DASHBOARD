@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Entorno virtual
+venv/
+ENV/
+env/
+.venv/
+
+# Configuración de editores
+.vscode/
+.idea/
+
+# Archivos temporales
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Archivos personales / sensibles
+.env
+.env.*
+*.env
+
+# Node.js / frontend
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Archivos del sistema (Windows/macOS)
+.DS_Store
+Thumbs.db
+desktop.ini
