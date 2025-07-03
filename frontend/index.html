@@ -1,157 +1,89 @@
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OSINT Dashboard Pro</title>
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Prueba Servicios OSINT</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        max-width: 700px;
+      }
+      section {
+        margin-bottom: 30px;
+      }
+      label {
+        display: block;
+        margin-top: 10px;
+      }
+      input,
+      button,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+      }
+      button {
+        width: auto;
+        cursor: pointer;
+      }
+      pre {
+        background: #eee;
+        padding: 10px;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Prueba Servicios Backend OSINT</h1>
 
-  <!-- Inter Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <!-- Email Pwned -->
+    <section>
+      <h2>Email Pwned</h2>
+      <label for="emailInput">Email:</label>
+      <input id="emailInput" type="email" value="test@example.com" />
+      <button onclick="checkEmail()">Comprobar</button>
+      <pre id="emailResult">Resultado aquí</pre>
+    </section>
 
-  <!-- Tailwind CDN (solo para demos) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            inter: ['Inter', 'sans-serif'],
-          },
-        },
-      },
-    };
-  </script>
+    <!-- File Analysis -->
+    <section>
+      <h2>Análisis de Texto</h2>
+      <label for="fileContent">Contenido (texto):</label>
+      <textarea id="fileContent" rows="5">
+Hola\nEsto es una prueba.\nFin.</textarea
+      >
+      <button onclick="analyzeFile()">Analizar</button>
+      <pre id="fileResult">Resultado aquí</pre>
+    </section>
 
-  <!-- DaisyUI CSS CDN (solo como estilos, no como plugin JS) -->
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@3.8.1/dist/full.css" rel="stylesheet" type="text/css" />
+    <!-- Hash Service -->
+    <section>
+      <h2>Hash SHA256</h2>
+      <label for="hashText">Texto a hashear:</label>
+      <input id="hashText" type="text" value="hola mundo" />
+      <button onclick="hashText()">Hashear</button>
+      <pre id="hashResult">Resultado aquí</pre>
+    </section>
 
-  <!-- Chart.js + Cytoscape -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/cytoscape@3.19.0/dist/cytoscape.min.js"></script>
+    <!-- Shodan Service -->
+    <section>
+      <h2>Shodan Simulado</h2>
+      <label for="shodanIp">IP:</label>
+      <input id="shodanIp" type="text" value="8.8.8.8" />
+      <button onclick="shodanLookup()">Buscar</button>
+      <pre id="shodanResult">Resultado aquí</pre>
+    </section>
 
-  <!-- Tu estilo personalizado -->
-  <link rel="stylesheet" href="assets/css/style.css" />
-</head>
-  <body
-    class="min-h-screen bg-base-100 text-base-content transition-colors duration-300 font-inter"
-  >
-    <div class="navbar bg-base-300 px-4">
-      <div class="flex-1">
-        <a class="btn btn-ghost text-xl">🔍 OSINT Dashboard</a>
-      </div>
-      <div class="flex-none">
-        <label class="swap swap-rotate">
-          <input type="checkbox" id="theme-toggle" />
-          <svg
-            class="swap-on fill-current w-6 h-6"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-          >
-            <path d="M5.64 17.64A9 9 0 1117.64 5.64 9 9 0 015.64 17.64z" />
-          </svg>
-          <svg
-            class="swap-off fill-current w-6 h-6"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"
-            />
-          </svg>
-        </label>
-      </div>
-    </div>
+    <!-- Whois Service -->
+    <section>
+      <h2>WHOIS Simulado</h2>
+      <label for="whoisDomain">Dominio:</label>
+      <input id="whoisDomain" type="text" value="example.com" />
+      <button onclick="whoisLookup()">Consultar</button>
+      <pre id="whoisResult">Resultado aquí</pre>
+    </section>
 
-    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <!-- WHOIS -->
-      <div class="card bg-base-200 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title">WHOIS Lookup</h2>
-          <input
-            id="whois-input"
-            type="text"
-            placeholder="example.com"
-            class="input input-bordered w-full"
-          />
-          <button class="btn btn-primary mt-2" onclick="fetchWhois()">
-            Buscar
-          </button>
-          <div id="whois-result" class="mt-2 text-sm"></div>
-        </div>
-      </div>
-      <!-- Email Breach -->
-      <div class="card bg-base-200 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title">Email Breach Scan</h2>
-          <input
-            id="email-input"
-            type="email"
-            placeholder="usuario@ejemplo.com"
-            class="input input-bordered w-full"
-          />
-          <button class="btn btn-secondary mt-2" onclick="scanEmail()">
-            Escanear
-          </button>
-          <div id="email-result" class="mt-2 text-sm"></div>
-        </div>
-      </div>
-      <!-- Shodan -->
-      <div class="card bg-base-200 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title">Shodan IP Lookup</h2>
-          <input
-            id="shodan-ip"
-            type="text"
-            placeholder="8.8.8.8"
-            class="input input-bordered w-full"
-          />
-          <button class="btn btn-accent mt-2" onclick="fetchShodan()">
-            Buscar
-          </button>
-          <div id="shodan-result" class="mt-2 text-sm"></div>
-        </div>
-      </div>
-      <!-- Hash Analyzer -->
-      <div class="card bg-base-200 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title">Análisis de Hash</h2>
-          <input
-            type="file"
-            id="hash-file"
-            class="file-input file-input-bordered w-full"
-          />
-          <button class="btn btn-info mt-2" onclick="analyzeHash()">
-            Analizar
-          </button>
-          <div id="hash-result" class="mt-2 text-sm"></div>
-        </div>
-      </div>
-      <!-- Hash Cracker -->
-      <div class="card bg-base-200 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title">Crackeo de Hash</h2>
-          <input
-            id="hash-input"
-            type="text"
-            placeholder="Hash a crackear"
-            class="input input-bordered w-full"
-          />
-          <button class="btn btn-error mt-2" onclick="crackHash()">
-            Iniciar
-          </button>
-          <div id="crack-result" class="mt-2 text-sm"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="p-6">
-      <h2 class="text-xl font-bold mb-2">Gráfico de Relaciones</h2>
-      <div
-        id="cy"
-        class="border rounded bg-base-200"
-        style="height: 400px"
-      ></div>
-    </div>
-
-    <script src="assets/js/script.js"></script>
+    <script src="assets/js/script.js" async defer></script>
   </body>
 </html>

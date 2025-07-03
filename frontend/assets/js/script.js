@@ -1,85 +1,101 @@
-const toggle = document.getElementById("theme-toggle");
-toggle.addEventListener("change", () => {
-  document.documentElement.classList.toggle("dark");
-});
+const BASE_URL = "http://127.0.0.1:5000";
 
-function fetchWhois() {
-  const domain = document.getElementById("whois-input").value;
-  document.getElementById(
-    "whois-result"
-  ).innerText = `Buscando WHOIS de ${domain}...`;
+function checkEmail() {
+  const email = document.getElementById("emailInput").value;
+  fetch(BASE_URL + "/api/email-check", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      document.getElementById("emailResult").innerText = JSON.stringify(
+        data,
+        null,
+        2
+      );
+    })
+    .catch((err) => {
+      document.getElementById("emailResult").innerText = "Error: " + err;
+    });
 }
 
-function scanEmail() {
-  const email = document.getElementById("email-input").value;
-  document.getElementById(
-    "email-result"
-  ).innerText = `Escaneando email ${email}...`;
+function analyzeFile() {
+  const content = document.getElementById("fileContent").value;
+  fetch(BASE_URL + "/api/file-analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      document.getElementById("fileResult").innerText = JSON.stringify(
+        data,
+        null,
+        2
+      );
+    })
+    .catch((err) => {
+      document.getElementById("fileResult").innerText = "Error: " + err;
+    });
 }
 
-function fetchShodan() {
-  const ip = document.getElementById("shodan-ip").value;
-  document.getElementById(
-    "shodan-result"
-  ).innerText = `Consultando Shodan para ${ip}...`;
+function hashText() {
+  const text = document.getElementById("hashText").value;
+  fetch(BASE_URL + "/api/hash", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      document.getElementById("hashResult").innerText = JSON.stringify(
+        data,
+        null,
+        2
+      );
+    })
+    .catch((err) => {
+      document.getElementById("hashResult").innerText = "Error: " + err;
+    });
 }
 
-function analyzeHash() {
-  document.getElementById("hash-result").innerText = `Analizando archivo...`;
+function shodanLookup() {
+  const ip = document.getElementById("shodanIp").value;
+  fetch(BASE_URL + "/api/shodan", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ip }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      document.getElementById("shodanResult").innerText = JSON.stringify(
+        data,
+        null,
+        2
+      );
+    })
+    .catch((err) => {
+      document.getElementById("shodanResult").innerText = "Error: " + err;
+    });
 }
 
-function crackHash() {
-  const hash = document.getElementById("hash-input").value;
-  document.getElementById("crack-result").innerText = `Crackeando ${hash}...`;
+function whoisLookup() {
+  const domain = document.getElementById("whoisDomain").value;
+  fetch(BASE_URL + "/api/whois", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ domain }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      document.getElementById("whoisResult").innerText = JSON.stringify(
+        data,
+        null,
+        2
+      );
+    })
+    .catch((err) => {
+      document.getElementById("whoisResult").innerText = "Error: " + err;
+    });
 }
-
-const cy = cytoscape({
-  container: document.getElementById("cy"),
-
-  // Elementos
-  elements: [
-    { data: { id: "email", label: "Email" } },
-    { data: { id: "ip", label: "IP" } },
-    { data: { id: "dominio", label: "Dominio" } },
-    { data: { source: "email", target: "ip" } },
-    { data: { source: "ip", target: "dominio" } },
-  ],
-
-  // Estilos
-  style: [
-    {
-      selector: "node",
-      style: {
-        "background-color": "#3b82f6",
-        label: "data(label)",
-        color: "#fff",
-        "text-valign": "center",
-        "text-halign": "center",
-      },
-    },
-    {
-      selector: "edge",
-      style: {
-        width: 2,
-        "line-color": "#9ca3af",
-        "target-arrow-color": "#9ca3af",
-        "target-arrow-shape": "triangle",
-      },
-    },
-  ],
-
-  // Disposición
-  layout: {
-    name: "grid",
-    rows: 1,
-    avoidOverlap: true,
-    fit: true,
-    padding: 10,
-  },
-
-  // ⚠️ Control de comportamiento
-  userZoomingEnabled: false, // No hacer zoom con scroll
-  userPanningEnabled: false, // No arrastrar el fondo
-  boxSelectionEnabled: false,
-  autoungrabify: true, // ❗ Impide mover nodos manualmente
-});
