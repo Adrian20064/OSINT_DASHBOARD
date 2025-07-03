@@ -73,3 +73,6 @@ backend/venv/
 # Archivos de sistema de Windows ocultos (redundante pero no hace daño)
 ehthumbs.db
 Icon?
+
+#ignorar comandos.txt (ayuda)
+comandos.txt
