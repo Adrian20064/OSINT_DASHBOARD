@@ -99,3 +99,25 @@ function whoisLookup() {
       document.getElementById("whoisResult").innerText = "Error: " + err;
     });
 }
+
+function hashText() {
+  const text = document.getElementById("hashText").value;
+  const algorithm = document.getElementById("hashAlg").value;
+
+  fetch("/api/hash", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: text, algorithm: algorithm }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      document.getElementById("hashResult").innerText = JSON.stringify(
+        data,
+        null,
+        2
+      );
+    })
+    .catch((err) => {
+      document.getElementById("hashResult").innerText = "Error: " + err;
+    });
+}

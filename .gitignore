@@ -36,3 +36,40 @@ yarn-error.log
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Archivos base de datos locales (SQLite y otros)
+*.sqlite
+*.db
+
+# Jupyter (si usas)
+.ipynb_checkpoints/
+
+# Python bytecode cache folders
+__pycache__/
+
+# Migrations cache y pycache
+backend/migrations/__pycache__/
+backend/__pycache__/
+backend/services/__pycache__/
+backend/databases/__pycache__/
+
+# Evitar subir entorno virtual (aunque ya está arriba)
+backend/venv/
+
+# Logs específicos del proyecto
+*.log
+
+# Archivos temporales creados por editores
+*.swp
+*.swo
+
+# Archivos de configuración local de IDEs (si quieres, ya están en .vscode/ y .idea/)
+*.iml
+
+# Archivos de base de datos o de caché temporales que no debes subir
+*.sqlite3
+*.sqlite-journal
+
+# Archivos de sistema de Windows ocultos (redundante pero no hace daño)
+ehthumbs.db
+Icon?

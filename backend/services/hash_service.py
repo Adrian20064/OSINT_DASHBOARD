@@ -1,25 +1,33 @@
 from flask import Blueprint, request, jsonify
-from databases.db import db
 from databases.models import HashRecord
+from services.db_helper import save_to_db
 import hashlib
 
-hash_bp = Blueprint('hash_bp', __name__)
+hash_bp = Blueprint("hash_bp", __name__)
 
-@hash_bp.route('/api/hash', methods=['POST'])
+@hash_bp.route("/api/hash", methods=["POST"])
 def hash_text():
     data = request.get_json()
-    text = data.get('text', '')
-    if not text:
-        return jsonify({"error": "Texto requerido"}), 400
-
-    hashed = hashlib.sha256(text.encode('utf-8')).hexdigest()
+    text = data.get("text", "")
+    algorithm = data.get("algorithm", "sha256").lower()
 
     try:
-        record = HashRecord(original=text, hashed=hashed)
-        db.session.add(record)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        hash_func = getattr(hashlib, algorithm)
+    except AttributeError:
+        return jsonify({"error": f"Algoritmo no soportado: {algorithm}"}), 400
 
-    return jsonify({"original": text, "hashed": hashed})
+    hashed = hash_func(text.encode()).hexdigest()
+
+    # Guardar en base de datos
+    record = HashRecord(
+        original_text=text,
+        texto_hasheado=hashed,
+        algoritmo=algorithm.upper()
+    )
+    save_to_db(record)
+
+    return jsonify({
+        "original": text,
+        "hash": hashed,
+        "algoritmo": algorithm.upper()
+    })

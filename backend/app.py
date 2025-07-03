@@ -1,14 +1,17 @@
 from flask import Flask,send_from_directory
 from dotenv import load_dotenv
+from databases.models import FileAnalysis
 import os
 from databases.db import db
-from databases import models  # importa los modelos para registrarlos
+from databases import models # importa los modelos para registrarlos
 from services.email_powned import email_bp
 from services.file_analisis import file_bp
 from services.hash_service import hash_bp
 from services.shodan_service import shodan_bp
 from services.whois_services import whois_bp
+from flask_migrate import Migrate
 load_dotenv()
+
 
 app = Flask(__name__)
 
@@ -26,6 +29,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inicializar SQLAlchemy
 db.init_app(app)
+migrate = Migrate(app,db)
 
 # Registrar blueprint
 app.register_blueprint(email_bp)
@@ -49,6 +53,19 @@ def send_assets(path):
 def serve_index():
     return send_from_directory('../frontend', 'index.html')
 
+@app.route('/fix-null-values')
+def fix_null_values():
+    with app.app_context():
+        records = FileAnalysis.query.filter(
+            (FileAnalysis.content == None) | (FileAnalysis.malicious == None)
+        ).all()
+        for record in records:
+            if record.content is None:
+                record.content = ""
+            if record.malicious is None:
+                record.malicious = False
+        db.session.commit()
+    return "Valores NULL actualizados"
 
 if __name__ == '__main__':
     app.run(debug=True)

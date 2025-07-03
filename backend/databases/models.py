@@ -8,19 +8,20 @@ class EmailCheck(db.Model):
     email = db.Column(db.String(120), nullable=False)
     pwned = db.Column(db.Boolean, nullable=False)
     
-
 class FileAnalysis(db.Model):
     __tablename__ = 'file_analysis'
     id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)  # Contenido completo
     content_length = db.Column(db.Integer, nullable=False)
     line_count = db.Column(db.Integer, nullable=False)
-    # Puedes agregar más campos si quieres guardar más info
+    malicious = db.Column(db.Boolean, nullable=False)  # Si es malicioso o no
 
 class HashRecord(db.Model):
     __tablename__ = 'hash_records'
     id = db.Column(db.Integer, primary_key=True)
     original_text = db.Column(db.Text, nullable=False)
-    sha256_hash = db.Column(db.String(64), nullable=False)  # 64 chars para SHA-256 hex
+    texto_hasheado = db.Column(db.Text, nullable=False)
+    algoritmo = db.Column(db.String(20), nullable=False)
 
 class ShodanLookup(db.Model):
     __tablename__ = 'shodan_lookups'
