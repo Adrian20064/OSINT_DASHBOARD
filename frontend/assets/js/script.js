@@ -97,22 +97,23 @@ function shodanLookup() {
     });
 }
 
-function whoisLookup() {
-  const domain = document.getElementById("whoisDomain").value;
-  fetch(BASE_URL + "/api/whois", {
+function runLocalScan() {
+  const ip = document.getElementById("scanInput").value;
+
+  fetch(BASE_URL + "/api/scan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ domain }),
+    body: JSON.stringify({ ip }),
   })
     .then((res) => res.json())
     .then((data) => {
-      document.getElementById("whoisResult").innerText = JSON.stringify(
-        data,
-        null,
-        2
-      );
+      document.getElementById("nmapResult").innerText =
+        data.nmap_result || "No Nmap";
+      document.getElementById("whoisResult").innerText =
+        data.whois_result || "No Whois";
     })
     .catch((err) => {
+      document.getElementById("nmapResult").innerText = "Error: " + err;
       document.getElementById("whoisResult").innerText = "Error: " + err;
     });
 }

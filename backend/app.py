@@ -8,7 +8,7 @@ from services.email_powned import email_bp
 from services.file_analisis import file_bp
 from services.hash_service import hash_bp
 from services.censys_service import censys_bp
-from services.whois_services import whois_bp
+from services.nmap_whois import localscan_bp
 from flask_migrate import Migrate
 load_dotenv()
 
@@ -35,8 +35,8 @@ migrate = Migrate(app,db)
 app.register_blueprint(email_bp)
 app.register_blueprint(file_bp)
 app.register_blueprint(hash_bp)
-app.register_blueprint(censys_bp)
-app.register_blueprint(whois_bp)
+app.register_blueprint(censys_bp) #Se debe cambiar con referencia a los cambios en el censys_service.py, con una nueva herramienta diferente y totalmente gratis a shodan 
+app.register_blueprint(localscan_bp)
 # Ruta para crear la base de datos
 @app.route('/create-db')
 def create_db():

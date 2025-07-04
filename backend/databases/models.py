@@ -30,10 +30,10 @@ class ShodanLookup(db.Model):
     open_ports = db.Column(db.Text)  # Podrías almacenar JSON como string
     vulnerabilities = db.Column(db.Text)  # Igual JSON como string
 
-class WhoisRecord(db.Model):
-    __tablename__ = 'whois_records'
+class LocalScan(db.Model):
+    __tablename__ = 'nmap_whois'
     id = db.Column(db.Integer, primary_key=True)
-    domain = db.Column(db.String(255), nullable=False, unique=True)
-    registrar = db.Column(db.String(255))
-    creation_date = db.Column(db.String(50))
-    expiration_date = db.Column(db.String(50))
+    ip_address = db.Column(db.String(45), nullable=False)
+    nmap_result = db.Column(db.Text)
+    whois_result = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, server_default=db.func.now())

@@ -55,11 +55,16 @@
 
     <!-- Whois Service -->
     <section>
-      <h2>(buscando uno nuevo)WHOIS Simulado</h2>
-      <label for="whoisDomain">Dominio:</label>
-      <input id="whoisDomain" type="text" value="example.com" />
-      <button onclick="whoisLookup()">Consultar</button>
-      <pre id="whoisResult">Resultado aquí</pre>
+      <h2>NMAP + WHOIS</h2>
+      <label for="scanInput">IP o Dominio:</label>
+      <input id="scanInput" type="text" value="example.com" />
+      <button onclick="runLocalScan()">Consultar</button>
+
+      <h3>Resultado Nmap</h3>
+      <pre id="nmapResult">Esperando resultado...</pre>
+
+      <h3>Resultado WHOIS</h3>
+      <pre id="whoisResult">Esperando resultado...</pre>
     </section>
 
     <script src="assets/js/script.js" async defer></script>

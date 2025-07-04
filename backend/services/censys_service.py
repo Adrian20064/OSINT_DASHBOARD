@@ -1,3 +1,5 @@
+#SE DEBE ARREGLAR EL CODIGO CON ALGO NUEVO QU ESEA GRATIS Y PARECIDO A SHODAN 
+
 from flask import Blueprint, request, jsonify
 from databases.db import db
 from databases.models import ShodanLookup
