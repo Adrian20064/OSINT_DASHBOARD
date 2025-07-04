@@ -20,24 +20,41 @@ function checkEmail() {
     });
 }
 
-function analyzeFile() {
-  const content = document.getElementById("fileContent").value;
-  fetch(BASE_URL + "/api/file-analyze", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      document.getElementById("fileResult").innerText = JSON.stringify(
-        data,
-        null,
-        2
-      );
+function analyzeUploadedFile() {
+  const input = document.getElementById("fileUpload");
+  const file = input.files[0];
+
+  if (!file) {
+    alert("Selecciona un archivo primero.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const base64Content = event.target.result.split(",")[1]; // extraer solo la base64
+
+    fetch(BASE_URL + "/api/file-analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: file.name,
+        content: base64Content,
+      }),
     })
-    .catch((err) => {
-      document.getElementById("fileResult").innerText = "Error: " + err;
-    });
+      .then((res) => res.json())
+      .then((data) => {
+        document.getElementById("uploadResult").innerText = JSON.stringify(
+          data,
+          null,
+          2
+        );
+      })
+      .catch((err) => {
+        document.getElementById("uploadResult").innerText = "Error: " + err;
+      });
+  };
+
+  reader.readAsDataURL(file); // lee el archivo y lo convierte en dataURL base64
 }
 
 function hashText() {

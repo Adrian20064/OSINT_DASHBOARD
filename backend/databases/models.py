@@ -11,10 +11,10 @@ class EmailCheck(db.Model):
 class FileAnalysis(db.Model):
     __tablename__ = 'file_analysis'
     id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text, nullable=False)  # Contenido completo
+    content = db.Column(db.Text, nullable=False)  # Aquí guardamos base64 (string)
     content_length = db.Column(db.Integer, nullable=False)
-    line_count = db.Column(db.Integer, nullable=False)
-    malicious = db.Column(db.Boolean, nullable=False)  # Si es malicioso o no
+    line_count = db.Column(db.Integer)
+    malicious = db.Column(db.Boolean, default=False)
 
 class HashRecord(db.Model):
     __tablename__ = 'hash_records'

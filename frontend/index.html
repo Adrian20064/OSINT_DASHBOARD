@@ -3,40 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>Prueba Servicios OSINT</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
-        max-width: 700px;
-      }
-      section {
-        margin-bottom: 30px;
-      }
-      label {
-        display: block;
-        margin-top: 10px;
-      }
-      input,
-      button,
-      textarea {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-      }
-      button {
-        width: auto;
-        cursor: pointer;
-      }
-      pre {
-        background: #eee;
-        padding: 10px;
-        white-space: pre-wrap;
-      }
-    </style>
+    <link href="./assets/css/style.css" rel="stylesheet" />
   </head>
   <body>
     <h1>Prueba Servicios Backend OSINT</h1>
-
     <!-- Email Pwned -->
     <section>
       <h2>Email Pwned</h2>
@@ -48,13 +18,10 @@
 
     <!-- File Analysis -->
     <section>
-      <h2>Análisis de Texto</h2>
-      <label for="fileContent">Contenido (texto):</label>
-      <textarea id="fileContent" rows="5">
-Hola\nEsto es una prueba.\nFin.</textarea
-      >
-      <button onclick="analyzeFile()">Analizar</button>
-      <pre id="fileResult">Resultado aquí</pre>
+      <h2>Análisis de archivos (PDF / CSV)</h2>
+      <input type="file" id="fileUpload" accept=".pdf,.csv,.txt" />
+      <button onclick="analyzeUploadedFile()">Analizar</button>
+      <pre id="uploadResult">Resultado aquí</pre>
     </section>
 
     <!-- Hash Service -->
@@ -79,7 +46,7 @@ Hola\nEsto es una prueba.\nFin.</textarea
 
     <!-- Shodan Service -->
     <section>
-      <h2>Shodan Simulado</h2>
+      <h2>(buscando uno nuevo)Shodan Simulado</h2>
       <label for="shodanIp">IP:</label>
       <input id="shodanIp" type="text" value="8.8.8.8" />
       <button onclick="shodanLookup()">Buscar</button>
@@ -88,7 +55,7 @@ Hola\nEsto es una prueba.\nFin.</textarea
 
     <!-- Whois Service -->
     <section>
-      <h2>WHOIS Simulado</h2>
+      <h2>(buscando uno nuevo)WHOIS Simulado</h2>
       <label for="whoisDomain">Dominio:</label>
       <input id="whoisDomain" type="text" value="example.com" />
       <button onclick="whoisLookup()">Consultar</button>

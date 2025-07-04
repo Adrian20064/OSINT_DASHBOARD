@@ -7,7 +7,7 @@ from databases import models # importa los modelos para registrarlos
 from services.email_powned import email_bp
 from services.file_analisis import file_bp
 from services.hash_service import hash_bp
-from services.shodan_service import shodan_bp
+from services.censys_service import censys_bp
 from services.whois_services import whois_bp
 from flask_migrate import Migrate
 load_dotenv()
@@ -35,7 +35,7 @@ migrate = Migrate(app,db)
 app.register_blueprint(email_bp)
 app.register_blueprint(file_bp)
 app.register_blueprint(hash_bp)
-app.register_blueprint(shodan_bp)
+app.register_blueprint(censys_bp)
 app.register_blueprint(whois_bp)
 # Ruta para crear la base de datos
 @app.route('/create-db')
@@ -51,7 +51,9 @@ def send_assets(path):
 # Servir index.html en la raíz
 @app.route('/')
 def serve_index():
-    return send_from_directory('../frontend', 'index.html')
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
+    print("Sirviendo desde:", path)
+    return send_from_directory(path, 'index.html')
 
 @app.route('/fix-null-values')
 def fix_null_values():
