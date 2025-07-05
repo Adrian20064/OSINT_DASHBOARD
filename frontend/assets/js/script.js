@@ -94,106 +94,133 @@ function hashText() {
       showResult(hashRes, "Error: " + err);
     });
 }
+//SuperSHODAN
+// Función para ejecutar SuperShodan (OSINT integrado)
+async function runSuperShodan() {
+  const target = document.getElementById("superTarget").value.trim();
+  const checkboxes = document.querySelectorAll(
+    'input[name="superTools"]:checked'
+  );
+  const tools = Array.from(checkboxes).map((cb) => cb.value);
 
-// Shodan Lookup (simulado o real)
-function shodanLookup() {
-  const shodanRes = document.getElementById("shodanResult");
-  showLoading(shodanRes);
+  const loader = document.getElementById("superLoader");
+  const resultsContainer = document.getElementById("superResults");
 
-  const ip = document.getElementById("shodanIp").value;
-
-  fetch(BASE_URL + "/api/shodan", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ip }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      showResult(shodanRes, JSON.stringify(data, null, 2));
-    })
-    .catch((err) => {
-      showResult(shodanRes, "Error: " + err);
-    });
-}
-
-// Nmap + Whois Scan
-chkNmap.addEventListener("change", () => {
-  if (chkNmap.checked) {
-    nmapParamsDiv.classList.remove("hidden");
-    nmapParamsDiv.style.maxHeight = nmapParamsDiv.scrollHeight + "px";
-  } else {
-    nmapParamsDiv.style.maxHeight = "0";
-    setTimeout(() => nmapParamsDiv.classList.add("hidden"), 500);
-    document.getElementById("nmapSelect").value = "";
-    document.getElementById("nmapParams").value = "";
-  }
-});
-
-async function runLocalScan() {
-  const ip = document.getElementById("scanInput").value.trim();
-  const runNmap = chkNmap.checked;
-  const runWhois = document.getElementById("chkWhois").checked;
-
-  if (!ip) {
-    alert("Por favor ingresa una IP o dominio.");
+  // Validación
+  if (!target) {
+    alert("Por favor ingresa una IP, dominio o email.");
     return;
   }
-  if (!runNmap && !runWhois) {
-    alert("Selecciona al menos Nmap o Whois para ejecutar.");
+  if (tools.length === 0) {
+    alert("Selecciona al menos una herramienta.");
     return;
   }
 
-  let nmapParams = "";
-  if (runNmap) {
-    const customParams = document.getElementById("nmapParams").value.trim();
-    const selectParams = document.getElementById("nmapSelect").value;
-    nmapParams = customParams || selectParams || "-sV -p 80,443";
-  }
-
-  const loader = document.getElementById("loader");
-  const nmapTitle = document.getElementById("nmapTitle");
-  const whoisTitle = document.getElementById("whoisTitle");
-  const nmapResult = document.getElementById("nmapResult");
-  const whoisResult = document.getElementById("whoisResult");
-
+  // Mostrar loader y ocultar resultados anteriores
   loader.classList.remove("hidden");
-  nmapResult.classList.add("hidden");
-  whoisResult.classList.add("hidden");
-  nmapTitle.classList.add("hidden");
-  whoisTitle.classList.add("hidden");
+  resultsContainer.classList.add("hidden");
+
+  // Ocultar todos los resultados individuales
+  document.querySelectorAll("#superResults > div").forEach((el) => {
+    el.classList.add("hidden");
+  });
 
   try {
-    const response = await fetch("/api/scan", {
+    const response = await fetch(BASE_URL + "/api/super-osint", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ip, runNmap, runWhois, nmapParams }),
+      body: JSON.stringify({ target, tools }),
     });
 
     const data = await response.json();
 
-    toggleLoadingState(True);
+    // Ocultar loader
+    loader.classList.add("hidden");
 
     if (data.error) {
       alert("Error: " + data.error);
       return;
     }
 
-    if (data.nmap_result) {
-      nmapTitle.classList.remove("hidden");
-      nmapResult.classList.remove("hidden");
-      nmapResult.innerText = data.nmap_result;
+    // Mostrar los resultados de cada herramienta
+    if (tools.includes("theharvester") && data.theharvester) {
+      const container = document.getElementById("theharvesterResult");
+      container.querySelector("pre").textContent = JSON.stringify(
+        data.theharvester,
+        null,
+        2
+      );
+      container.classList.remove("hidden");
     }
-    if (data.whois_result) {
-      whoisTitle.classList.remove("hidden");
-      whoisResult.classList.remove("hidden");
-      whoisResult.innerText = data.whois_result;
+
+    if (tools.includes("nmap") && data.nmap) {
+      const container = document.getElementById("nmapResult");
+      container.querySelector("pre").textContent =
+        typeof data.nmap === "string"
+          ? data.nmap
+          : JSON.stringify(data.nmap, null, 2);
+      container.classList.remove("hidden");
     }
+
+    if (tools.includes("whois") && data.whois) {
+      const container = document.getElementById("whoisResult");
+      container.querySelector("pre").textContent =
+        typeof data.whois === "string"
+          ? data.whois
+          : JSON.stringify(data.whois, null, 2);
+      container.classList.remove("hidden");
+    }
+
+    if (tools.includes("dns") && data.dns) {
+      // Si agregaste un contenedor para DNS
+      const container =
+        document.getElementById("dnsResult") || document.createElement("div");
+      container.innerHTML = `
+        <h3 class="font-bold text-red-600 mb-2">DNS Lookup</h3>
+        <pre class="max-h-48 overflow-auto text-sm">${JSON.stringify(
+          data.dns,
+          null,
+          2
+        )}</pre>
+      `;
+      container.className = "bg-gray-100 rounded-md p-4";
+      resultsContainer.appendChild(container);
+      container.classList.remove("hidden");
+    }
+
+    // Mostrar el contenedor de resultados
+    resultsContainer.classList.remove("hidden");
   } catch (error) {
-    toggleLoadingState(false);
+    loader.classList.add("hidden");
     alert("Error al consultar: " + error.message);
+    console.error("Error en runSuperShodan:", error);
   }
 }
 
+// Función para mostrar/ocultar parámetros de Nmap (si decides mantener esta funcionalidad)
+function setupNmapToggle() {
+  const chkNmap = document.getElementById("chkNmap");
+  const nmapParamsDiv = document.getElementById("nmapParamsDiv");
+
+  if (chkNmap && nmapParamsDiv) {
+    chkNmap.addEventListener("change", () => {
+      if (chkNmap.checked) {
+        nmapParamsDiv.classList.remove("hidden");
+        nmapParamsDiv.style.maxHeight = nmapParamsDiv.scrollHeight + "px";
+      } else {
+        nmapParamsDiv.style.maxHeight = "0";
+        setTimeout(() => nmapParamsDiv.classList.add("hidden"), 500);
+        document.getElementById("nmapSelect").value = "";
+        document.getElementById("nmapParams").value = "";
+      }
+    });
+  }
+}
+
+// Inicialización cuando el DOM esté cargado
+document.addEventListener("DOMContentLoaded", function () {
+  setupNmapToggle(); // Solo si mantienes esta funcionalidad
+});
 //carga
 function toggleLoadingState(isLoading) {
   const button = document.querySelector("button");

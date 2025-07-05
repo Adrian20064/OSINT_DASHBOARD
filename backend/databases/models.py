@@ -24,18 +24,57 @@ class HashRecord(db.Model):
     texto_hasheado = db.Column(db.Text, nullable=False)
     algoritmo = db.Column(db.String(20), nullable=False)
 
-class ShodanLookup(db.Model):
-    __tablename__ = 'shodan_lookups'
-    id = db.Column(db.Integer, primary_key=True)
-    ip_address = db.Column(db.String(45), nullable=False)  # IPv6 compatible
-    open_ports = db.Column(db.Text)  # Podrías almacenar JSON como string
-    vulnerabilities = db.Column(db.Text)  # Igual JSON como string
 
-class LocalScan(db.Model):
-    __tablename__ = 'local_scans'
+class SuperShodanScan(db.Model):
+    __tablename__ = 'supershodan_scans'
+    
     id = db.Column(db.Integer, primary_key=True)
-    ip_address = db.Column(db.String(45), nullable=False, index=True)  # index para consultas más rápidas
-    nmap_result = db.Column(db.Text)
-    whois_result = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    target = db.Column(db.String(255), nullable=False)
+    scan_date = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # Si tienes autenticación
+    theharvester_results = db.Column(db.JSON)  # Para almacenar resultados JSON
+    nmap_results = db.Column(db.Text)
+    whois_results = db.Column(db.Text)
+    dns_results = db.Column(db.JSON)
+    is_complete = db.Column(db.Boolean, default=False)
+    error = db.Column(db.Text)
 
+    # Relación con usuario si usas Flask-Login
+    user = db.relationship('User', backref='supershodan_scans')
+
+    def __init__(self, target, user_id=None):
+        self.target = target
+        self.user_id = user_id
+        self.is_complete = False
+
+    def save_results(self, results):
+        """Guarda los resultados en la base de datos"""
+        try:
+            self.theharvester_results = results.get('theharvester')
+            self.nmap_results = results.get('nmap')
+            self.whois_results = results.get('whois')
+            self.dns_results = results.get('dns')
+            self.is_complete = True
+            db.session.commit()
+        except Exception as e:
+            self.error = str(e)
+            db.session.rollback()
+
+    def to_dict(self):
+        """Convierte el objeto a diccionario para JSON"""
+        return {
+            'id': self.id,
+            'target': self.target,
+            'scan_date': self.scan_date.isoformat() if self.scan_date else None,
+            'theharvester': self.theharvester_results,
+            'nmap': self.nmap_results,
+            'whois': self.whois_results,
+            'dns': self.dns_results,
+            'is_complete': self.is_complete,
+            'error': self.error
+        }
+
+    @classmethod
+    def get_recent_scans(cls, limit=10):
+        """Obtiene los escaneos más recientes"""
+        return cls.query.order_by(cls.scan_date.desc()).limit(limit).all()

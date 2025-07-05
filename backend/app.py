@@ -7,7 +7,7 @@ from databases import models
 from services.email_powned import email_bp
 from services.file_analisis import file_bp
 from services.hash_service import hash_bp
-from services.nmap_whois import localscan_bp
+from services.supershodan import supershodan_bp
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from flask_migrate import Migrate
 
@@ -34,7 +34,7 @@ migrate = Migrate(app, db)
 app.register_blueprint(email_bp)
 app.register_blueprint(file_bp)
 app.register_blueprint(hash_bp)
-app.register_blueprint(localscan_bp)
+app.register_blueprint(supershodan_bp)
 
 
 
