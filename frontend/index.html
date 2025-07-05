@@ -1,72 +1,194 @@
 <!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Prueba Servicios OSINT</title>
-    <link href="./assets/css/style.css" rel="stylesheet" />
-  </head>
-  <body>
-    <h1>Prueba Servicios Backend OSINT</h1>
-    <!-- Email Pwned -->
-    <section>
-      <h2>Email Pwned</h2>
-      <label for="emailInput">Email:</label>
-      <input id="emailInput" type="email" value="test@example.com" />
-      <button onclick="checkEmail()">Comprobar</button>
-      <pre id="emailResult">Resultado aquí</pre>
-    </section>
+<head>
+  <meta charset="UTF-8" />
+  <title>Prueba Servicios OSINT</title>
 
-    <!-- File Analysis -->
-    <section>
-      <h2>Análisis de archivos (PDF / CSV)</h2>
-      <input type="file" id="fileUpload" accept=".pdf,.csv,.txt" />
-      <button onclick="analyzeUploadedFile()">Analizar</button>
-      <pre id="uploadResult">Resultado aquí</pre>
-    </section>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
 
-    <!-- Hash Service -->
-    <section>
-      <h2>Hash Generator</h2>
-      <label for="hashText">Texto a hashear:</label>
-      <input id="hashText" type="text" value="hola mundo" />
+  <!-- Animate.css CDN -->
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+  />
+  <!-- Heroicons CDN -->
+  <script src="https://unpkg.com/heroicons@2.0.18/dist/heroicons.min.js"></script>
+</head>
+<section id="loginSection" class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-md mx-auto">
+  <h2 class="text-2xl font-semibold text-blue-700 mb-4">Iniciar Sesión</h2>
+  <label class="block mb-1">Usuario:</label>
+  <input type="text" id="username" class="w-full p-2 border rounded mb-2" />
+  <label class="block mb-1">Contraseña:</label>
+  <input type="password" id="password" class="w-full p-2 border rounded mb-4" />
+  <button onclick="login()" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Iniciar sesión</button>
+  <pre id="loginResult" class="mt-4 text-sm text-red-500"></pre>
+</section>
+<body class="bg-gray-50 min-h-screen p-6 font-sans text-gray-800">
 
-      <label for="hashAlg">Algoritmo:</label>
-      <select id="hashAlg">
-        <option value="md5">MD5</option>
-        <option value="sha1">SHA-1</option>
-        <option value="sha224">SHA-224</option>
-        <option value="sha256" selected>SHA-256</option>
-        <option value="sha384">SHA-384</option>
-        <option value="sha512">SHA-512</option>
-      </select>
+  <h1 class="text-4xl font-extrabold text-center mb-10 text-blue-700">Prueba Servicios Backend OSINT</h1>
 
-      <button onclick="hashText()">Hashear</button>
-      <pre id="hashResult">Resultado aquí</pre>
-    </section>
+  <!-- Email Pwned -->
+  <section class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-4xl mx-auto">
+    <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2 text-blue-600">
+      <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16 12h2m-6 6h2m-6-12h2M4 16h2m2 0h12"></path>
+      </svg>
+      Email Pwned
+    </h2>
+    <label for="emailInput" class="block mb-1 font-medium text-gray-700">Email:</label>
+    <input id="emailInput" type="email" value="test@example.com" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+    <button onclick="checkEmail()" class="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 flex items-center gap-2 justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+      </svg>
+      Comprobar
+    </button>
+    <pre id="emailResult" class="mt-4 bg-gray-100 rounded-md p-4 max-h-48 overflow-auto text-sm"></pre>
+  </section>
 
-    <!-- Shodan Service -->
-    <section>
-      <h2>(buscando uno nuevo)Shodan Simulado</h2>
-      <label for="shodanIp">IP:</label>
-      <input id="shodanIp" type="text" value="8.8.8.8" />
-      <button onclick="shodanLookup()">Buscar</button>
-      <pre id="shodanResult">Resultado aquí</pre>
-    </section>
+  <!-- File Analysis -->
+  <section class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-4xl mx-auto">
+    <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2 text-green-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+      </svg>
+      Análisis de archivos (PDF / CSV)
+    </h2>
+    <input type="file" id="fileUpload" accept=".pdf,.csv,.txt" class="block w-full mb-4" />
+    <button onclick="analyzeUploadedFile()" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 flex items-center gap-2 justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+      </svg>
+      Analizar
+    </button>
+    <pre id="uploadResult" class="mt-4 bg-gray-100 rounded-md p-4 max-h-48 overflow-auto text-sm"></pre>
+  </section>
 
-    <!-- Whois Service -->
-    <section>
-      <h2>NMAP + WHOIS</h2>
-      <label for="scanInput">IP o Dominio:</label>
-      <input id="scanInput" type="text" value="example.com" />
-      <button onclick="runLocalScan()">Consultar</button>
+  <!-- Hash Service -->
+  <section class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-4xl mx-auto">
+    <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2 text-purple-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m6 0a6 6 0 11-12 0 6 6 0 0112 0z"></path>
+      </svg>
+      Hash Generator
+    </h2>
+    <label for="hashText" class="block mb-1 font-medium text-gray-700">Texto a hashear:</label>
+    <input id="hashText" type="text" value="hola mundo" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400" />
 
-      <h3>Resultado Nmap</h3>
-      <pre id="nmapResult">Esperando resultado...</pre>
+    <label for="hashAlg" class="block mt-4 mb-1 font-medium text-gray-700">Algoritmo:</label>
+    <select id="hashAlg" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400">
+      <option value="md5">MD5</option>
+      <option value="sha1">SHA-1</option>
+      <option value="sha224">SHA-224</option>
+      <option value="sha256" selected>SHA-256</option>
+      <option value="sha384">SHA-384</option>
+      <option value="sha512">SHA-512</option>
+    </select>
 
-      <h3>Resultado WHOIS</h3>
-      <pre id="whoisResult">Esperando resultado...</pre>
-    </section>
+    <button onclick="hashText()" class="mt-4 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 flex items-center gap-2 justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+      </svg>
+      Hashear
+    </button>
+    <pre id="hashResult" class="mt-4 bg-gray-100 rounded-md p-4 max-h-48 overflow-auto text-sm"></pre>
+  </section>
 
-    <script src="assets/js/script.js" async defer></script>
-  </body>
+  <!-- Shodan Service -->
+  <section class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-4xl mx-auto">
+    <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2 text-yellow-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18m-9-9v18"></path>
+      </svg>
+      (buscando uno nuevo) Shodan Simulado
+    </h2>
+    <label for="shodanIp" class="block mb-1 font-medium text-gray-700">IP:</label>
+    <input id="shodanIp" type="text" value="8.8.8.8" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400" />
+    <button onclick="shodanLookup()" class="mt-4 bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600 flex items-center gap-2 justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+      </svg>
+      Buscar
+    </button>
+    <pre id="shodanResult" class="mt-4 bg-gray-100 rounded-md p-4 max-h-48 overflow-auto text-sm"></pre>
+  </section>
+
+<section class="my-6 p-6 border rounded shadow-md max-w-xl mx-auto">
+  <h2 class="text-2xl font-semibold mb-4">NMAP + WHOIS</h2>
+
+  <label for="scanInput" class="block mb-2 font-medium">IP o Dominio:</label>
+  <input
+    id="scanInput"
+    type="text"
+    placeholder="Ejemplo: 8.8.8.8 o google.com"
+    class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+  />
+
+  <div class="flex items-center gap-6 mt-4">
+    <label class="flex items-center gap-2 cursor-pointer select-none">
+      <input type="checkbox" id="chkNmap" class="form-checkbox h-5 w-5 text-indigo-600" />
+      <span class="font-medium">NMAP</span>
+    </label>
+
+    <label class="flex items-center gap-2 cursor-pointer select-none">
+      <input type="checkbox" id="chkWhois" class="form-checkbox h-5 w-5 text-indigo-600" />
+      <span class="font-medium">WHOIS</span>
+    </label>
+  </div>
+
+  <!-- Contenedor NMAP comandos -->
+<section>
+  <h2>NMAP + WHOIS</h2>
+
+  <label for="scanInput">IP o Dominio</label>
+  <input
+    id="scanInput"
+    type="text"
+    placeholder="Ej: 8.8.8.8 o google.com"
+    autocomplete="off"
+  />
+
+  <div style="margin: 15px 0;">
+    <label><input type="checkbox" id="chkNmap" /> NMAP</label>
+    <label style="margin-left: 15px;"><input type="checkbox" id="chkWhois" /> WHOIS</label>
+  </div>
+
+  <div id="nmapParamsDiv" class="hidden" style="margin-bottom: 15px;">
+    <label for="nmapSelect">Comandos comunes NMAP</label>
+    <select
+      id="nmapSelect"
+      style="width: 100%; padding: 8px; border-radius: 8px; border: 1.5px solid #ccc;"
+    >
+      <option value="">-- Selecciona un comando --</option>
+      <option value="-p 80,443">-p 80,443 (Puertos específicos)</option>
+      <option value="-sV">-sV (Detección versión servicios)</option>
+      <option value="-O">-O (Detección sistema operativo)</option>
+      <option value="-A">-A (Escaneo agresivo)</option>
+      <option value="-T4">-T4 (Velocidad rápida)</option>
+      <option value="-Pn">-Pn (No hacer ping antes de escanear)</option>
+      <option value="-sS">-sS (Escaneo SYN stealth)</option>
+      <option value="-sU">-sU (Escaneo UDP)</option>
+      <option value="-sC">-sC (Scripts básicos)</option>
+      <option value="-v">-v (Modo verbose)</option>
+      <option value="--open">--open (Mostrar solo puertos abiertos)</option>
+    </select>
+
+    <label for="nmapParams" style="margin-top: 12px; display: block;">
+      O escribe parámetros personalizados (tienen prioridad):
+    </label>
+    <input
+      id="nmapParams"
+      type="text"
+      placeholder="Ej: -sV -p 80,443"
+      style="width: 100%; padding: 8px; border-radius: 8px; border: 1.5px solid #ccc;"
+    />
+  </div>
+
+  <button onclick="runLocalScan()">Consultar</button>
+</section>
+
+  <script src="./assets/js/script.js"></script>
+</body>
 </html>

@@ -1,6 +1,20 @@
 #LAS CLASES DE MODELOS DE LA BASE DE DATOS (CREAN TABLAS EN LA DB)
 from databases.db import db
+from datetime import datetime
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 class EmailCheck(db.Model):
     __tablename__ = 'email_checks'
 
@@ -31,9 +45,10 @@ class ShodanLookup(db.Model):
     vulnerabilities = db.Column(db.Text)  # Igual JSON como string
 
 class LocalScan(db.Model):
-    __tablename__ = 'nmap_whois'
+    __tablename__ = 'local_scans'
     id = db.Column(db.Integer, primary_key=True)
-    ip_address = db.Column(db.String(45), nullable=False)
+    ip_address = db.Column(db.String(45), nullable=False, index=True)  # index para consultas más rápidas
     nmap_result = db.Column(db.Text)
     whois_result = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime, server_default=db.func.now())
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+

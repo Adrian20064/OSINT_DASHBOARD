@@ -15,22 +15,21 @@ def analyze_file():
 
     try:
         decoded_bytes = base64.b64decode(base64_content)
-        # Solo para análisis:
-        try:
-            content_text = decoded_bytes.decode('utf-8', errors='ignore')
-        except:
-            content_text = ""  # fallback si no se puede decodificar
+        content_text = decoded_bytes.decode('utf-8', errors='ignore')
     except Exception as e:
         print(f"Error decodificando base64: {e}")
         return jsonify({"error": "Error al decodificar el contenido: " + str(e)}), 400
 
+    print(f"Contenido texto (primeros 200 chars): {content_text[:200]}")
+
     content_length = len(decoded_bytes)
-    line_count = content_text.count('\n') + 1 if content_text else 0
+    line_count = content_text.count('\n') + 1
+
     malicious = is_malicious(content_text)
 
     try:
         record = FileAnalysis(
-            content=base64_content,  # Guarda el base64, no el texto con nulos
+            content=content_text,
             content_length=content_length,
             line_count=line_count,
             malicious=malicious

@@ -1,28 +1,357 @@
+/* Reset básico y fuente */
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  padding: 20px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  background: #f5f7fa;
+  padding: 40px 20px;
   max-width: 700px;
+  margin: 0 auto;
+  color: #2c3e50;
+  line-height: 1.6;
 }
+
+/* Secciones con sombra, borde redondeado y suave */
 section {
-  margin-bottom: 30px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px 25px;
+  margin-bottom: 40px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+  position: relative;
 }
+
+section:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+/* Títulos más grandes y elegantes */
+h1 {
+  font-weight: 900;
+  font-size: 2.75rem;
+  margin-bottom: 50px;
+  color: #34495e;
+  text-align: center;
+  letter-spacing: -1px;
+}
+
+h2 {
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #1a73e8;
+  margin-bottom: 20px;
+  border-bottom: 3px solid #1a73e8;
+  padding-bottom: 6px;
+}
+
+/* Etiquetas estilizadas */
 label {
   display: block;
-  margin-top: 10px;
+  font-weight: 600;
+  margin-top: 20px;
+  color: #34495e;
+  user-select: none;
 }
-input,
-button,
+
+/* Inputs y textarea */
+input[type="text"],
+input[type="email"],
+input[type="file"],
+select,
 textarea {
   width: 100%;
-  padding: 8px;
-  margin-top: 5px;
+  padding: 12px 15px;
+  margin-top: 8px;
+  border-radius: 10px;
+  border: 2px solid #dce4f0;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #f9fbff;
+  color: #34495e;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+  outline-offset: 2px;
 }
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="file"]:focus,
+select:focus,
+textarea:focus {
+  border-color: #1a73e8;
+  background: #ffffff;
+  box-shadow: 0 0 12px rgba(26, 115, 232, 0.4);
+}
+
+/* Botones */
 button {
-  width: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, #1a73e8 0%, #4285f4 100%);
+  color: white;
+  font-weight: 700;
+  padding: 14px 26px;
+  margin-top: 25px;
+  border: none;
+  border-radius: 12px;
   cursor: pointer;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  box-shadow: 0 6px 15px rgba(26, 115, 232, 0.5);
+  transition: all 0.3s ease;
+  user-select: none;
 }
+
+button:hover {
+  background: linear-gradient(90deg, #4285f4 0%, #1a73e8 100%);
+  box-shadow: 0 10px 25px rgba(26, 115, 232, 0.7);
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 10px rgba(26, 115, 232, 0.4);
+}
+
+/* Pre para resultados */
 pre {
-  background: #eee;
-  padding: 10px;
+  background: #f1f5fb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 25px;
   white-space: pre-wrap;
+  max-height: 250px;
+  overflow-y: auto;
+  font-family: "Fira Code", monospace, monospace;
+  font-size: 0.95rem;
+  color: #34495e;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: background 0.3s ease;
+}
+
+pre:hover {
+  background: #e7f0ff;
+}
+
+/* Checkboxes - diseño moderno */
+input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  accent-color: #1a73e8;
+  transition: accent-color 0.3s ease;
+}
+
+input[type="checkbox"]:hover {
+  accent-color: #4285f4;
+}
+
+/* Loader estilo animado */
+#loader {
+  font-weight: 700;
+  color: #1a73e8;
+  font-size: 1.15rem;
+  animation: pulse 1.5s infinite;
+  user-select: none;
+  margin-top: 15px;
+}
+
+/* Animación pulsante para loader */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+
+/* Transiciones para mostrar/ocultar resultados */
+#nmapResult,
+#whoisResult,
+#emailResult,
+#uploadResult,
+#hashResult,
+#shodanResult {
+  transition: opacity 0.5s ease, max-height 0.5s ease;
+  max-height: 250px;
+  opacity: 1;
+  overflow-y: auto;
+}
+
+.hidden {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+/* Scroll personalizado para pre */
+pre::-webkit-scrollbar {
+  width: 8px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: #e1e8f0;
+  border-radius: 6px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: #1a73e8;
+  border-radius: 6px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  body {
+    padding: 20px 12px;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+  }
+  section {
+    padding: 20px 18px;
+  }
+  button {
+    width: 100%;
+  }
+}
+
+/* Fade In para mostrar resultados */
+.fade-in {
+  animation: fadeInAnim 0.5s ease forwards;
+  opacity: 0;
+}
+
+.fade-in.show {
+  opacity: 1;
+}
+
+/* Animación para fadeIn */
+@keyframes fadeInAnim {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Deslizamiento suave para resultados */
+.slide-down {
+  animation: slideDownAnim 0.5s ease forwards;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+}
+
+.slide-down.show {
+  max-height: 500px; /* Suficiente para mostrar contenido */
+  opacity: 1;
+}
+
+/* Animación para slideDown */
+@keyframes slideDownAnim {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 500px;
+    opacity: 1;
+  }
+}
+
+/* Loader: rotación suave */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #14b8a6; /* Teal */
+  font-size: 1.15rem;
+  user-select: none;
+}
+
+#loader::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border: 3px solid #14b8a6;
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Botones: efecto hover con sombra animada */
+button {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Inputs: transición suave para focus */
+input,
+select {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Para los contenedores de resultados: 
+   Añadir clase fade-in o slide-down desde JS para animar */
+
+.opacity-50 {
+  opacity: 0.5 !important;
+}
+.opacity-100 {
+  opacity: 1 !important;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.6);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  margin-right: 10px;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
