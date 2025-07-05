@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 from databases.db import db
 from databases.models import FileAnalysis
-import os
 import base64
+
 file_bp = Blueprint('file', __name__)
 
 @file_bp.route('/api/file-analyze', methods=['POST'])
@@ -15,12 +15,13 @@ def analyze_file():
 
     try:
         decoded_bytes = base64.b64decode(base64_content)
-        content_text = decoded_bytes.decode('utf-8', errors='ignore')
+        clean_text = decoded_bytes.decode('utf-8', errors='ignore')
+        content_text = clean_text.replace('\x00', '')  # Eliminar caracteres NUL
     except Exception as e:
         print(f"Error decodificando base64: {e}")
         return jsonify({"error": "Error al decodificar el contenido: " + str(e)}), 400
 
-    print(f"Contenido texto (primeros 200 chars): {content_text[:200]}")
+    print(f"Contenido texto limpio (primeros 200 chars): {content_text[:200]}")
 
     content_length = len(decoded_bytes)
     line_count = content_text.count('\n') + 1
@@ -47,7 +48,7 @@ def analyze_file():
         "malicious": malicious,
         "message": "Guardado en DB"
     })
-    
+
 def is_malicious(content):
     keywords = ["malware", "trojan", "backdoor", "virus"]
-    return any(word in content.lower() for word in keywords)    
+    return any(word in content.lower() for word in keywords)

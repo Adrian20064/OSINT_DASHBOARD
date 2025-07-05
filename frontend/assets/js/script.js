@@ -209,35 +209,3 @@ function toggleLoadingState(isLoading) {
     loader.classList.add("hidden");
   }
 }
-
-//funcion login
-function login() {
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const resultBox = document.getElementById("loginResult");
-
-  fetch(`${BASE_URL}/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ username, password }),
-  })
-    .then((res) => {
-      if (res.redirected) {
-        location.href = res.url; // redirige si el backend responde con un redirect
-      } else {
-        return res.text().then((text) => {
-          resultBox.innerText = "Inicio de sesión fallido.";
-        });
-      }
-    })
-    .catch((err) => {
-      resultBox.innerText = "Error de conexión: " + err;
-    });
-}
-fetch(`${BASE_URL}/protected`).then((res) => {
-  if (!res.ok) {
-    document.getElementById("loginSection").style.display = "block";
-  } else {
-    document.getElementById("loginSection").style.display = "none";
-  }
-});

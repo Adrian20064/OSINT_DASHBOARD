@@ -1,16 +1,15 @@
 from flask import Flask, send_from_directory, request, render_template, redirect, url_for, flash,jsonify
 from dotenv import load_dotenv
-from databases.models import FileAnalysis, LocalScan, User
+from databases.models import FileAnalysis, LocalScan
 import os
 from databases.db import db
 from databases import models
 from services.email_powned import email_bp
 from services.file_analisis import file_bp
 from services.hash_service import hash_bp
-from services.auth import auth_bp, login_manager
 from services.nmap_whois import localscan_bp
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from flask_migrate import Migrate
-from flask_login import login_user, login_required, logout_user, current_user
 
 load_dotenv()
 
@@ -30,55 +29,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Setup login
-login_manager.init_app(app)
-login_manager.login_view = "login"
 
 # Registrar blueprints
 app.register_blueprint(email_bp)
 app.register_blueprint(file_bp)
 app.register_blueprint(hash_bp)
-app.register_blueprint(auth_bp)
 app.register_blueprint(localscan_bp)
 
-# Login HTML (usando plantilla login.html)
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        user = User.query.filter_by(username=username).first()
-        if user and user.check_password(password):
-            login_user(user)
-            return redirect(url_for("protected"))
-        else:
-            flash("Usuario o contraseña incorrectos")
-    return render_template("login.html")
 
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for("login"))
-
-@app.route("/protected")
-@login_required
-def protected():
-    return jsonify({"message": "Logueado como " + current_user.username})
-
-# Cargar usuario en sesión
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-# Crear usuario de prueba
-@app.route('/create-user')
-def create_user():
-    user = User(username="admin")
-    user.set_password("admin123")
-    db.session.add(user)
-    db.session.commit()
-    return "Usuario creado: admin / admin123"
 
 # Crear DB
 @app.route('/create-db')
