@@ -24,3 +24,4 @@ shodan==1.31.0
 slowapi==0.1.9
 SQLAlchemy==2.0.41
 ujson==5.10.0
+gunicorn==23.0.0

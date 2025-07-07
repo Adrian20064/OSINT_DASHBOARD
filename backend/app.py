@@ -39,7 +39,7 @@ app.register_blueprint(passwords_bp)
 app.register_blueprint(supershodan_bp)
 
 #cors (for deployment)
-CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
+CORS(app, supports_credentials=True, origins=["https://osint-dashboard.onrender.com"])
 
 # Crear DB
 @app.route('/create-db')
