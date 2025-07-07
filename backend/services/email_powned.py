@@ -8,6 +8,7 @@ from databases.models import EmailCheck
 
 email_bp = Blueprint('email_bp', __name__)
 
+#mail
 @email_bp.route('/api/email-check', methods=['POST'])
 def check_email():
     data = request.json
