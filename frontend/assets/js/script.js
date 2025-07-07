@@ -26,11 +26,19 @@ function checkEmail() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
   })
-    .then((res) => res.json())
+    .then(async (res) => {
+      const text = await res.text();
+      try {
+        if (!res.ok) throw new Error(`Error HTTP ${res.status}: ${text}`);
+        return JSON.parse(text);
+      } catch {
+        // Si no es JSON, mostrar texto crudo para depurar
+        throw new Error(text);
+      }
+    })
     .then((data) => showResult(emailRes, JSON.stringify(data, null, 2)))
-    .catch((err) => showResult(emailRes, "Error: " + err));
+    .catch((err) => showResult(emailRes, "Error: " + err.message));
 }
-
 // File Analysis
 function analyzeUploadedFile() {
   const input = document.getElementById("fileUpload");

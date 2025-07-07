@@ -2,6 +2,7 @@ import subprocess
 import json
 import os
 import shutil
+from services.db_helper import save_to_db
 from flask import Blueprint, request, jsonify
 from databases.models import SuperShodanScan
 from databases.db import db
@@ -110,13 +111,14 @@ def super_osint():
         return jsonify({"error": "Selecciona al menos una herramienta"}), 400
 
     scan_record = SuperShodanScan(target=target)
+
     try:
-        db.session.add(scan_record)
-        db.session.commit()
+        save_to_db(scan_record)
     except Exception as e:
         return jsonify({"error": f"Error al crear registro: {str(e)}"}), 500
 
     results = {}
+
     try:
         if 'theharvester' in tools and ('@' in target or '.' in target):
             domain = target.split('@')[-1] if '@' in target else target
@@ -131,17 +133,13 @@ def super_osint():
         if 'dns' in tools and ('.' in target or ':' in target):
             results['dns'] = run_dns_enum(target)
 
-        try:
-            scan_record.theharvester_results = results.get('theharvester')
-            scan_record.nmap_results = results.get('nmap')
-            scan_record.whois_results = results.get('whois')
-            scan_record.dns_results = results.get('dns')
-            scan_record.is_complete = True
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            scan_record.error = f"Error al guardar resultados: {str(e)}"
-            db.session.commit()
+        # Guardar resultados
+        scan_record.theharvester_results = results.get('theharvester')
+        scan_record.nmap_results = results.get('nmap')
+        scan_record.whois_results = results.get('whois')
+        scan_record.dns_results = results.get('dns')
+        scan_record.is_complete = True
+        db.session.commit()
 
         return jsonify({
             'scan_id': scan_record.id,

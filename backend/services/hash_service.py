@@ -18,13 +18,15 @@ def hash_text():
 
     hashed = hash_func(text.encode()).hexdigest()
 
-    # Guardar en base de datos
-    record = HashRecord(
-        original_text=text,
-        texto_hasheado=hashed,
-        algoritmo=algorithm.upper()
-    )
-    save_to_db(record)
+    try:
+        record = HashRecord(
+            original_text=text,
+            texto_hasheado=hashed,
+            algoritmo=algorithm.upper()
+        )
+        save_to_db(record)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
     return jsonify({
         "original": text,

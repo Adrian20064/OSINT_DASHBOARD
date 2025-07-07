@@ -2,6 +2,7 @@ from flask import Flask, send_from_directory, request, render_template, redirect
 from dotenv import load_dotenv
 from databases.models import FileAnalysis
 import os
+import logging
 from databases.models import SuperShodanScan
 from databases.db import db
 from databases import models
@@ -21,6 +22,15 @@ app = Flask(__name__)
 env_path = Path(__file__).resolve().parent / '.env'
 load_dotenv(dotenv_path=env_path)
 
+#logger para el debug
+if not app.debug:
+    app.logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+    handler.setFormatter(formatter)
+    app.logger.addHandler(handler)
+    
 #cargar base de datos supabase, nuevo puerto
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
