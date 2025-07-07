@@ -91,3 +91,4 @@ class PasswordBreachQuery(db.Model):
             'count': self.count,
             'query_date': self.query_date.isoformat()
         }
+

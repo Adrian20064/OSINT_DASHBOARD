@@ -12,18 +12,14 @@ from services.supershodan import supershodan_bp
 from flask_migrate import Migrate
 from services.passwords_breaches import passwords_bp
 from flask_cors import CORS
+from pathlib import Path
 
-#contraseñas libreria
-load_dotenv()
 
 app = Flask(__name__)
 
-# Config DB
-DB_USER = os.getenv('DB_USER')
-DB_PASS = os.getenv('DB_PASS')
-DB_HOST = os.getenv('DB_HOST')
-DB_PORT = os.getenv('DB_PORT')
-DB_NAME = os.getenv('DB_NAME')
+#cargar .env
+env_path = Path(__file__).resolve().parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
 #cargar base de datos supabase, nuevo puerto
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
