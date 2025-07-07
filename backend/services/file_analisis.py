@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from databases.db import db
 from databases.models import FileAnalysis
+from services.db_helper import save_to_db
 import base64
 
 file_bp = Blueprint('file', __name__)
@@ -25,7 +25,6 @@ def analyze_file():
 
     content_length = len(decoded_bytes)
     line_count = content_text.count('\n') + 1
-
     malicious = is_malicious(content_text)
 
     try:
@@ -35,18 +34,16 @@ def analyze_file():
             line_count=line_count,
             malicious=malicious
         )
-        db.session.add(record)
-        db.session.commit()
+        save_to_db(record)
     except Exception as e:
-        print(f"Error guardando en DB: {e}")
-        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
     return jsonify({
+        "filename": filename,
         "content_length": content_length,
         "line_count": line_count,
         "malicious": malicious,
-        "message": "Guardado en DB"
+        "message": "Guardado correctamente"
     })
 
 def is_malicious(content):

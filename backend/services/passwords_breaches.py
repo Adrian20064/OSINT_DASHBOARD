@@ -1,6 +1,8 @@
 import hashlib
 import requests
 from flask import Blueprint, request, jsonify
+from databases.models import PasswordBreachQuery
+from services.db_helper import save_to_db
 
 passwords_bp = Blueprint('passwords_breaches', __name__)
 
@@ -24,13 +26,29 @@ def check_password_leak():
         hashes = (line.split(':') for line in res.text.splitlines())
         for h, count in hashes:
             if h == suffix:
+                record = PasswordBreachQuery(
+                    sha1_hash=sha1_password,
+                    leaked=True,
+                    count=int(count)
+                )
+                save_to_db(record)
                 return jsonify({
+                    'sha1': sha1_password,
                     'leaked': True,
                     'count': int(count),
                     'message': f'La contraseña ha sido filtrada {count} veces.'
                 })
 
+        # No encontrada
+        record = PasswordBreachQuery(
+            sha1_hash=sha1_password,
+            leaked=False,
+            count=0
+        )
+        save_to_db(record)
+
         return jsonify({
+            'sha1': sha1_password,
             'leaked': False,
             'count': 0,
             'message': 'La contraseña no fue encontrada en bases de datos públicas.'
