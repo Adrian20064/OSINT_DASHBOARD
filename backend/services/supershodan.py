@@ -8,6 +8,7 @@ from databases.db import db
 
 supershodan_bp = Blueprint('supershodan_bp', __name__)
 
+#procesing
 def run_command(cmd, timeout=60):
     try:
         result = subprocess.run(
@@ -33,7 +34,7 @@ def run_command(cmd, timeout=60):
         print("Exception:", str(e))
         return f"Error: {str(e)}"
     
-    
+#TheHarvester
 def run_theharvester(domain):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     theharvester_path = os.path.join(BASE_DIR, "theHarvester", "theHarvester.py")
@@ -55,6 +56,7 @@ def run_theharvester(domain):
     print("No se generó el archivo de resultados")
     return {"error": "No se generó el archivo de resultados"}
 
+#nmap
 def run_nmap(target):
     try:
         cmd = ["nmap", "-T4", "-Pn", "-sV", "--open", "-p", "21,22,80,443,8080", target]
@@ -62,6 +64,7 @@ def run_nmap(target):
     except Exception as e:
         return {"error": str(e)}
 
+#Whois
 def run_whois(target):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     whois_exe = os.path.join(BASE_DIR, "whois64.exe")
@@ -75,6 +78,7 @@ def run_whois(target):
     except Exception as e:
         return {"error": str(e)}
 
+#dns
 def run_dns_enum(target):
     try:
         tools = {}
@@ -93,6 +97,7 @@ def run_dns_enum(target):
     except Exception as e:
         return {"error": str(e)}
 
+#route
 @supershodan_bp.route('/api/super-osint', methods=['POST'])
 def super_osint():
     data = request.get_json()
