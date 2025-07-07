@@ -2,7 +2,6 @@ from flask import Flask, send_from_directory, request, render_template, redirect
 from dotenv import load_dotenv
 from databases.models import FileAnalysis
 import os
-import psycopg
 from databases.models import SuperShodanScan
 from databases.db import db
 from databases import models
