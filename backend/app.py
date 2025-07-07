@@ -23,7 +23,7 @@ env_path = Path(__file__).resolve().parent / '.env'
 load_dotenv(dotenv_path=env_path)
 
 #logger para el debug
-if not app.debug:
+if app.debug:
     app.logger.setLevel(logging.DEBUG)
     handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
