@@ -1,20 +1,21 @@
-from flask import Flask, send_from_directory, request, render_template, redirect, url_for, flash,jsonify
+from flask import Flask, send_from_directory, request, render_template, redirect, url_for, flash, jsonify
 from dotenv import load_dotenv
-from databases.models import FileAnalysis, LocalScan
+from databases.models import FileAnalysis
 import os
+from databases.models import SuperShodanScan
 from databases.db import db
 from databases import models
 from services.email_powned import email_bp
 from services.file_analisis import file_bp
 from services.hash_service import hash_bp
-from services.supershodan import supershodan_bp
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
+from services.supershodan import supershodan_bp 
 from flask_migrate import Migrate
+from services.passwords_breaches import passwords_bp
+from flask_cors import CORS
 
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 
 # Config DB
 DB_USER = os.getenv('DB_USER')
@@ -29,14 +30,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 migrate = Migrate(app, db)
 
+app.secret_key = os.getenv('SECRET_KEY', 'una_clave_secreta_para_desarollo')
 
 # Registrar blueprints
 app.register_blueprint(email_bp)
 app.register_blueprint(file_bp)
 app.register_blueprint(hash_bp)
+app.register_blueprint(passwords_bp)
 app.register_blueprint(supershodan_bp)
 
-
+CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
 
 # Crear DB
 @app.route('/create-db')
@@ -54,6 +57,11 @@ def send_assets(path):
 def serve_index():
     path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
     return send_from_directory(path, 'index.html')
+
+@app.route('/api/supershodan/recent')
+def supershodan_recent():
+    scans = SuperShodanScan.get_recent_scans()
+    return jsonify([scan.to_dict() for scan in scans])
 
 @app.route('/fix-null-values')
 def fix_null_values():

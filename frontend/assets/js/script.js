@@ -1,7 +1,6 @@
 const BASE_URL = "http://127.0.0.1:5000";
-const chkNmap = document.getElementById("chkNmap");
-const nmapParamsDiv = document.getElementById("nmapParamsDiv");
 
+// Utilidades visuales
 function showLoading(element, message = "Cargando...") {
   element.classList.remove("animate__fadeIn", "opacity-100");
   element.classList.add("opacity-50");
@@ -18,29 +17,25 @@ function showResult(element, content) {
 
 // Email Checker
 function checkEmail() {
+  const email = document.getElementById("emailInput").value;
   const emailRes = document.getElementById("emailResult");
   showLoading(emailRes);
 
-  const email = document.getElementById("emailInput").value;
-  fetch(BASE_URL + "/api/email-check", {
+  fetch(`${BASE_URL}/api/email-check`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
   })
     .then((res) => res.json())
-    .then((data) => {
-      showResult(emailRes, JSON.stringify(data, null, 2));
-    })
-    .catch((err) => {
-      showResult(emailRes, "Error: " + err);
-    });
+    .then((data) => showResult(emailRes, JSON.stringify(data, null, 2)))
+    .catch((err) => showResult(emailRes, "Error: " + err));
 }
 
 // File Analysis
 function analyzeUploadedFile() {
-  const uploadRes = document.getElementById("uploadResult");
   const input = document.getElementById("fileUpload");
   const file = input.files[0];
+  const uploadRes = document.getElementById("uploadResult");
 
   if (!file) {
     alert("Selecciona un archivo primero.");
@@ -51,90 +46,70 @@ function analyzeUploadedFile() {
   showLoading(uploadRes, "Procesando archivo...");
 
   const reader = new FileReader();
-  reader.onload = function (event) {
+  reader.onload = (event) => {
     const base64Content = event.target.result.split(",")[1];
 
-    fetch(BASE_URL + "/api/file-analyze", {
+    fetch(`${BASE_URL}/api/file-analyze`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        filename: file.name,
-        content: base64Content,
-      }),
+      body: JSON.stringify({ filename: file.name, content: base64Content }),
     })
       .then((res) => res.json())
-      .then((data) => {
-        showResult(uploadRes, JSON.stringify(data, null, 2));
-      })
-      .catch((err) => {
-        showResult(uploadRes, "Error: " + err);
-      });
+      .then((data) => showResult(uploadRes, JSON.stringify(data, null, 2)))
+      .catch((err) => showResult(uploadRes, "Error: " + err));
   };
+
   reader.readAsDataURL(file);
 }
 
 // Hash Generator
 function hashText() {
-  const hashRes = document.getElementById("hashResult");
-  showLoading(hashRes);
-
   const text = document.getElementById("hashText").value;
   const algorithm = document.getElementById("hashAlg").value;
+  const hashRes = document.getElementById("hashResult");
 
-  fetch(BASE_URL + "/api/hash", {
+  showLoading(hashRes);
+
+  fetch(`${BASE_URL}/api/hash`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text, algorithm }),
   })
     .then((res) => res.json())
-    .then((data) => {
-      showResult(hashRes, JSON.stringify(data, null, 2));
-    })
-    .catch((err) => {
-      showResult(hashRes, "Error: " + err);
-    });
+    .then((data) => showResult(hashRes, JSON.stringify(data, null, 2)))
+    .catch((err) => showResult(hashRes, "Error: " + err));
 }
-//SuperSHODAN
-// Función para ejecutar SuperShodan (OSINT integrado)
+
+// Super OSINT (Shodan + Whois + Nmap + DNS)
 async function runSuperShodan() {
   const target = document.getElementById("superTarget").value.trim();
-  const checkboxes = document.querySelectorAll(
-    'input[name="superTools"]:checked'
-  );
-  const tools = Array.from(checkboxes).map((cb) => cb.value);
+  const tools = Array.from(
+    document.querySelectorAll('input[name="superTools"]:checked')
+  ).map((cb) => cb.value);
 
   const loader = document.getElementById("superLoader");
   const resultsContainer = document.getElementById("superResults");
 
-  // Validación
-  if (!target) {
-    alert("Por favor ingresa una IP, dominio o email.");
-    return;
-  }
-  if (tools.length === 0) {
-    alert("Selecciona al menos una herramienta.");
+  if (!target || tools.length === 0) {
+    alert("Completa los campos: objetivo y herramientas.");
     return;
   }
 
-  // Mostrar loader y ocultar resultados anteriores
   loader.classList.remove("hidden");
   resultsContainer.classList.add("hidden");
 
-  // Ocultar todos los resultados individuales
   document.querySelectorAll("#superResults > div").forEach((el) => {
     el.classList.add("hidden");
   });
 
   try {
-    const response = await fetch(BASE_URL + "/api/super-osint", {
+    const res = await fetch(`${BASE_URL}/api/super-osint`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ target, tools }),
     });
 
-    const data = await response.json();
-
-    // Ocultar loader
+    const data = await res.json(); // 🔧 Este faltaba
     loader.classList.add("hidden");
 
     if (data.error) {
@@ -142,62 +117,61 @@ async function runSuperShodan() {
       return;
     }
 
-    // Mostrar los resultados de cada herramienta
-    if (tools.includes("theharvester") && data.theharvester) {
-      const container = document.getElementById("theharvesterResult");
-      container.querySelector("pre").textContent = JSON.stringify(
-        data.theharvester,
-        null,
-        2
-      );
-      container.classList.remove("hidden");
-    }
-
-    if (tools.includes("nmap") && data.nmap) {
-      const container = document.getElementById("nmapResult");
-      container.querySelector("pre").textContent =
-        typeof data.nmap === "string"
-          ? data.nmap
-          : JSON.stringify(data.nmap, null, 2);
-      container.classList.remove("hidden");
-    }
-
-    if (tools.includes("whois") && data.whois) {
-      const container = document.getElementById("whoisResult");
-      container.querySelector("pre").textContent =
-        typeof data.whois === "string"
-          ? data.whois
-          : JSON.stringify(data.whois, null, 2);
-      container.classList.remove("hidden");
-    }
-
-    if (tools.includes("dns") && data.dns) {
-      // Si agregaste un contenedor para DNS
-      const container =
-        document.getElementById("dnsResult") || document.createElement("div");
-      container.innerHTML = `
-        <h3 class="font-bold text-red-600 mb-2">DNS Lookup</h3>
-        <pre class="max-h-48 overflow-auto text-sm">${JSON.stringify(
-          data.dns,
-          null,
-          2
-        )}</pre>
-      `;
-      container.className = "bg-gray-100 rounded-md p-4";
-      resultsContainer.appendChild(container);
-      container.classList.remove("hidden");
-    }
-
-    // Mostrar el contenedor de resultados
-    resultsContainer.classList.remove("hidden");
-  } catch (error) {
+    const results = data.results || data; // Por si tu backend no envía `results` como clave
+    showSuperResults(results, tools); // ✅
+  } catch (err) {
     loader.classList.add("hidden");
-    alert("Error al consultar: " + error.message);
-    console.error("Error en runSuperShodan:", error);
+    console.error("Error en runSuperShodan:", err);
+    alert("Error: " + err.message);
   }
 }
+// Mostrar resultados dinámicos
+function showSuperResults(data, tools) {
+  const resultsContainer = document.getElementById("superResults");
 
-// Función para mostrar/ocultar parámetros de Nmap (si decides mantener esta funcionalidad)
+  const showToolResult = (id, content) => {
+    const container = document.getElementById(id);
+    if (container) {
+      container.querySelector("pre").textContent =
+        typeof content === "string"
+          ? content
+          : JSON.stringify(content, null, 2);
+      container.classList.remove("hidden");
+    }
+  };
+
+  if (tools.includes("theharvester") && data.theharvester)
+    showToolResult("theharvesterResult", data.theharvester);
+
+  if (tools.includes("nmap") && data.nmap)
+    showToolResult("nmapResult", data.nmap);
+
+  if (tools.includes("whois") && data.whois)
+    showToolResult("whoisResult", data.whois);
+
+  if (tools.includes("dns") && data.dns) {
+    let container = document.getElementById("dnsResult");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "dnsResult";
+      container.className = "bg-gray-100 rounded-md p-4";
+      document.getElementById("superResults").appendChild(container);
+    }
+    container.innerHTML = `
+      <h3 class="font-bold text-red-600 mb-2">DNS Lookup</h3>
+      <pre class="max-h-48 overflow-auto text-sm">${JSON.stringify(
+        data.dns,
+        null,
+        2
+      )}</pre>
+    `;
+    container.classList.remove("hidden");
+  }
+
+  resultsContainer.classList.remove("hidden");
+}
+
+// Nmap toggle
 function setupNmapToggle() {
   const chkNmap = document.getElementById("chkNmap");
   const nmapParamsDiv = document.getElementById("nmapParamsDiv");
@@ -217,11 +191,7 @@ function setupNmapToggle() {
   }
 }
 
-// Inicialización cuando el DOM esté cargado
-document.addEventListener("DOMContentLoaded", function () {
-  setupNmapToggle(); // Solo si mantienes esta funcionalidad
-});
-//carga
+// Carga
 function toggleLoadingState(isLoading) {
   const button = document.querySelector("button");
   const loader = document.getElementById("loader");
@@ -235,4 +205,100 @@ function toggleLoadingState(isLoading) {
     button.innerText = "Consultar";
     loader.classList.add("hidden");
   }
+}
+
+// DOM Ready
+document.addEventListener("DOMContentLoaded", () => {
+  setupNmapToggle();
+});
+
+//creador de contraseñas seguras
+function generateSecurePassword() {
+  const length = parseInt(document.getElementById("passwordLength").value);
+  const includeUpper = document.getElementById("includeUppercase").checked;
+  const includeLower = document.getElementById("includeLowercase").checked;
+  const includeNumbers = document.getElementById("includeNumbers").checked;
+  const includeSymbols = document.getElementById("includeSymbols").checked;
+
+  let charset = "";
+  if (includeLower) charset += "abcdefghijklmnopqrstuvwxyz";
+  if (includeUpper) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  if (includeNumbers) charset += "0123456789";
+  if (includeSymbols) charset += "!@#$%^&*()-_=+[]{};:,.<>?";
+
+  if (!charset) {
+    alert("Selecciona al menos una opción de carácter.");
+    return;
+  }
+
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    password += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+
+  document.getElementById("generatedPassword").innerText = password;
+  document.getElementById("passwordOutput").classList.remove("hidden");
+}
+
+function copyPassword() {
+  const passText = document.getElementById("generatedPassword").innerText;
+  navigator.clipboard.writeText(passText).then(() => {
+    alert("¡Contraseña copiada al portapapeles!");
+  });
+}
+
+//Verificador de contraseñas (fortaleza)
+function checkPasswordStrength() {
+  const input = document.getElementById("passwordStrengthInput");
+  const bar = document.getElementById("passwordStrengthBar");
+  const text = document.getElementById("passwordStrengthText");
+  const result = zxcvbn(input.value);
+
+  const strengthLevels = [
+    { text: "Muy débil 😟", color: "bg-red-500", width: "20%" },
+    { text: "Débil 😕", color: "bg-orange-400", width: "40%" },
+    { text: "Regular 😐", color: "bg-yellow-400", width: "60%" },
+    { text: "Fuerte 🙂", color: "bg-green-500", width: "80%" },
+    { text: "Muy fuerte 😎", color: "bg-green-700", width: "100%" },
+  ];
+
+  const level = strengthLevels[result.score];
+
+  bar.className = `h-2 rounded-md transition-all duration-300 ease-in-out ${level.color}`;
+  bar.style.width = level.width;
+  text.textContent = `${level.text} (${result.score}/4) - ${
+    result.feedback.suggestions.join(" ") || "Buena contraseña."
+  }`;
+}
+
+//Verificador de contraseñas si han sifo filtradas
+
+function checkPasswordLeak() {
+  const password = document.getElementById("passwordInput").value.trim();
+  const result = document.getElementById("passwordLeakResult");
+  if (!password) {
+    alert("Por favor ingresa una contraseña.");
+    return;
+  }
+
+  result.textContent = "Consultando base de datos...";
+
+  fetch(`${BASE_URL}/api/check-password-leak`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.error) {
+        result.textContent = `Error: ${data.error}`;
+      } else if (data.leaked) {
+        result.textContent = `⚠️ ¡Atención! La contraseña ha sido filtrada ${data.count} veces.\n\n${data.message}`;
+      } else {
+        result.textContent = `✅ La contraseña no fue encontrada en bases públicas.\n\n${data.message}`;
+      }
+    })
+    .catch((err) => {
+      result.textContent = `Error: ${err.message}`;
+    });
 }

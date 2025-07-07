@@ -1,4 +1,3 @@
-#LAS CLASES DE MODELOS DE LA BASE DE DATOS (CREAN TABLAS EN LA DB)
 from databases.db import db
 from datetime import datetime
 
@@ -24,31 +23,24 @@ class HashRecord(db.Model):
     texto_hasheado = db.Column(db.Text, nullable=False)
     algoritmo = db.Column(db.String(20), nullable=False)
 
-
 class SuperShodanScan(db.Model):
     __tablename__ = 'supershodan_scans'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     target = db.Column(db.String(255), nullable=False)
     scan_date = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # Si tienes autenticación
-    theharvester_results = db.Column(db.JSON)  # Para almacenar resultados JSON
+    theharvester_results = db.Column(db.JSON)
     nmap_results = db.Column(db.Text)
     whois_results = db.Column(db.Text)
     dns_results = db.Column(db.JSON)
     is_complete = db.Column(db.Boolean, default=False)
     error = db.Column(db.Text)
 
-    # Relación con usuario si usas Flask-Login
-    user = db.relationship('User', backref='supershodan_scans')
-
-    def __init__(self, target, user_id=None):
+    def __init__(self, target):
         self.target = target
-        self.user_id = user_id
         self.is_complete = False
 
     def save_results(self, results):
-        """Guarda los resultados en la base de datos"""
         try:
             self.theharvester_results = results.get('theharvester')
             self.nmap_results = results.get('nmap')
@@ -61,7 +53,6 @@ class SuperShodanScan(db.Model):
             db.session.rollback()
 
     def to_dict(self):
-        """Convierte el objeto a diccionario para JSON"""
         return {
             'id': self.id,
             'target': self.target,
@@ -76,5 +67,27 @@ class SuperShodanScan(db.Model):
 
     @classmethod
     def get_recent_scans(cls, limit=10):
-        """Obtiene los escaneos más recientes"""
         return cls.query.order_by(cls.scan_date.desc()).limit(limit).all()
+
+
+#Se usa solo sha1 porque:  la API de Have I Been Pwned (HIBP) Passwords, solo se usa SHA-1 para la comprobación de contraseñas filtradas.
+class PasswordBreachQuery(db.Model):
+    __tablename__ = 'password_breach_queries'
+
+    id = db.Column(db.Integer, primary_key=True)
+    sha1_hash = db.Column(db.String(40), nullable=False)
+    leaked = db.Column(db.Boolean, nullable=False)
+    count = db.Column(db.Integer, default=0)
+    query_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<PasswordBreachQuery {self.sha1_hash} leaked={self.leaked} count={self.count}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'sha1_hash': self.sha1_hash,
+            'leaked': self.leaked,
+            'count': self.count,
+            'query_date': self.query_date.isoformat()
+        }
