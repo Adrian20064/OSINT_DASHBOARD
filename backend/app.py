@@ -13,6 +13,7 @@ from flask_migrate import Migrate
 from services.passwords_breaches import passwords_bp
 from flask_cors import CORS
 
+#contraseñas libreria
 load_dotenv()
 
 app = Flask(__name__)
