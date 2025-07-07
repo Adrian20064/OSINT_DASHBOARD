@@ -27,10 +27,9 @@ DB_NAME = os.getenv('DB_NAME')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+#inicialize app and migrations to databse
 db.init_app(app)
 migrate = Migrate(app, db)
-
-app.secret_key = os.getenv('SECRET_KEY', 'una_clave_secreta_para_desarollo')
 
 # Registrar blueprints
 app.register_blueprint(email_bp)
@@ -39,6 +38,7 @@ app.register_blueprint(hash_bp)
 app.register_blueprint(passwords_bp)
 app.register_blueprint(supershodan_bp)
 
+#cors (for deployment)
 CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
 
 # Crear DB
