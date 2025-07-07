@@ -2,6 +2,7 @@ from flask import Flask, send_from_directory, request, render_template, redirect
 from dotenv import load_dotenv
 from databases.models import FileAnalysis
 import os
+import psycopg
 from databases.models import SuperShodanScan
 from databases.db import db
 from databases import models
@@ -24,7 +25,7 @@ DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')
 DB_NAME = os.getenv('DB_NAME')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql+psycopg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 #inicialize app and migrations to databse
