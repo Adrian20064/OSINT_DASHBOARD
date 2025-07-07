@@ -191,26 +191,15 @@ function setupNmapToggle() {
   }
 }
 
-// Carga
-function toggleLoadingState(isLoading) {
-  const button = document.querySelector("button");
-  const loader = document.getElementById("loader");
-
-  if (isLoading) {
-    button.disabled = true;
-    button.innerHTML = `<span class="spinner"></span> Consultando...`;
-    loader.classList.remove("hidden");
-  } else {
-    button.disabled = false;
-    button.innerText = "Consultar";
-    loader.classList.add("hidden");
-  }
-}
-
 // DOM Ready
 document.addEventListener("DOMContentLoaded", () => {
   setupNmapToggle();
 });
+
+//modo oscuro
+function toggleDarkMode() {
+  document.documentElement.classList.toggle("dark");
+}
 
 //creador de contraseñas seguras
 function generateSecurePassword() {
