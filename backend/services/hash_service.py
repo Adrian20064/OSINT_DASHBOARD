@@ -3,8 +3,10 @@ from databases.models import HashRecord
 from services.db_helper import save_to_db
 import hashlib
 
+#blupeprint hash
 hash_bp = Blueprint("hash_bp", __name__)
 
+#Hash  endopoint
 @hash_bp.route("/api/hash", methods=["POST"])
 def hash_text():
     data = request.get_json()

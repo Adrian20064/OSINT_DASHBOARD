@@ -4,7 +4,7 @@ from databases.models import FileAnalysis
 import os
 import logging
 from databases.models import SuperShodanScan
-from databases.db import db
+from databases.db import db,init_db
 from databases import models
 from services.email_powned import email_bp
 from services.file_analisis import file_bp
@@ -15,12 +15,14 @@ from services.passwords_breaches import passwords_bp
 from flask_cors import CORS
 from pathlib import Path
 
-
-app = Flask(__name__)
-
 #cargar .env
 env_path = Path(__file__).resolve().parent / '.env'
+print("DATABASE_URL =", os.getenv("DATABASE_URL"))
 load_dotenv(dotenv_path=env_path)
+
+# Configurar la aplicación Flask
+app = Flask(__name__)
+init_db(app)
 
 #logger para el debug
 if app.debug:
@@ -32,11 +34,9 @@ if app.debug:
     app.logger.addHandler(handler)
     
 #cargar base de datos supabase, nuevo puerto
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+with app.app_context():
+    db.create_all()
 #inicialize app and migrations to databse
-db.init_app(app)
 migrate = Migrate(app, db)
 
 # Registrar blueprints

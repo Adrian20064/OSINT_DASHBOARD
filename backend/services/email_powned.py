@@ -1,16 +1,10 @@
-#SCRIPT PARA LA COMPROBACION DEL EMAAIL
-#LA API CUESTA ENTONCES ESTO SE VA A ALAGRAR 
-
-#TEST
-from flask import Blueprint, request, jsonify,current_app
-import logging
+from flask import Blueprint, request, jsonify, current_app
 import traceback
 from services.db_helper import save_to_db
 from databases.models import EmailCheck
 
 email_bp = Blueprint('email_bp', __name__)
 
-#mail
 @email_bp.route('/api/email-check', methods=['POST'])
 def check_email():
     try:
@@ -22,7 +16,13 @@ def check_email():
         is_pwned = "@" in email and email.endswith(".com")
 
         record = EmailCheck(email=email, pwned=is_pwned)
-        save_to_db(record)
+
+        # Probar guardado con manejo de errores:
+        try:
+            save_to_db(record)
+        except Exception as db_err:
+            current_app.logger.error(f"Error guardando en DB: {db_err}")
+            return jsonify({"error": "Error interno de base de datos"}), 500
 
         return jsonify({
             "email": email,
