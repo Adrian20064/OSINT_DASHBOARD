@@ -19,9 +19,16 @@ from pathlib import Path
 env_path = Path(__file__).resolve().parent / '.env'
 print("DATABASE_URL =", os.getenv("DATABASE_URL"))
 load_dotenv(dotenv_path=env_path)
+print("DATABASE_URL =", os.getenv("DATABASE_URL"))
+
 
 # Configurar la aplicación Flask
 app = Flask(__name__)
+# Configurar la URI de la DB antes de inicializarla
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Inicializar la base de datos
 init_db(app)
 
 #logger para el debug
