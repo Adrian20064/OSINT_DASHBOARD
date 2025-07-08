@@ -82,3 +82,6 @@ chartsproject/
 
 #test archivos pyhton
 tests/
+
+#base de datos 
+/backend/supabase/
