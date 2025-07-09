@@ -41,7 +41,7 @@ def run_command(cmd, timeout=60):
         return f"Error: {str(e)}"
 
 # ========================
-# TheHarvester (reemplazo con crt.sh)
+# Remplazo de: TheHarvester a  crt.sh
 # ========================
 def run_theharvester(domain):
     try:
@@ -81,31 +81,37 @@ def run_nmap(target):
         if ip_info.status_code == 200:
             data = ip_info.json()
             return {
-                "nmap_error": error_message,
-                "ip_api_info": {
-                    "ip": data.get("query"),
-                    "isp": data.get("isp"),
-                    "org": data.get("org"),
-                    "country": data.get("country"),
-                    "city": data.get("city"),
-                    "region": data.get("regionName"),
-                    "timezone": data.get("timezone"),
-                    "lat": data.get("lat"),
-                    "lon": data.get("lon"),
-                    "as": data.get("as"),
-                    "reverse": data.get("reverse"),
-                    "status": data.get("status")
+                "nmap": {
+                    "nmap_error": error_message,
+                    "ip_api_info": {
+                        "ip": data.get("query"),
+                        "isp": data.get("isp"),
+                        "org": data.get("org"),
+                        "country": data.get("country"),
+                        "city": data.get("city"),
+                        "region": data.get("regionName"),
+                        "timezone": data.get("timezone"),
+                        "lat": data.get("lat"),
+                        "lon": data.get("lon"),
+                        "as": data.get("as"),
+                        "reverse": data.get("reverse"),
+                        "status": data.get("status")
+                    }
                 }
             }
         else:
             return {
-                "nmap_error": error_message,
-                "ip_api_error": f"ip-api.com respondió con estado: {ip_info.status_code}"
+                "nmap": {
+                    "nmap_error": error_message,
+                    "ip_api_error": f"ip-api.com respondió con estado: {ip_info.status_code}"
+                }
             }
     except Exception as e:
         return {
-            "nmap_error": error_message,
-            "ip_api_error": f"Excepción al consultar ip-api.com: {str(e)}"
+            "nmap": {
+                "nmap_error": error_message,
+                "ip_api_error": f"Excepción al consultar ip-api.com: {str(e)}"
+            }
         }
 
 # ========================

@@ -1,6 +1,6 @@
 from databases.db import db
 from datetime import datetime
-
+import json
 class EmailCheck(db.Model):
     __tablename__ = 'email_checks'
 
@@ -39,12 +39,18 @@ class SuperShodanScan(db.Model):
     def __init__(self, target):
         self.target = target
         self.is_complete = False
-
+        
     def save_results(self, results):
         try:
             self.theharvester_results = results.get('theharvester')
-            self.nmap_results = results.get('nmap')
-            self.whois_results = results.get('whois')
+
+            # Convertir a JSON string si no es None
+            nmap_res = results.get('nmap')
+            self.nmap_results = json.dumps(nmap_res) if nmap_res is not None else None
+
+            whois_res = results.get('whois')
+            self.whois_results = json.dumps(whois_res) if whois_res is not None else None
+
             self.dns_results = results.get('dns')
             self.is_complete = True
             db.session.commit()
