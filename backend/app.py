@@ -71,16 +71,24 @@ def create_db():
 def send_assets(path):
     return send_from_directory('../frontend/assets', path)
 
+#Index endpoint
 @app.route('/')
 def serve_index():
     path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
     return send_from_directory(path, 'index.html')
 
+#supershodan endpoint
 @app.route('/api/supershodan/recent')
 def supershodan_recent():
     scans = SuperShodanScan.get_recent_scans()
     return jsonify([scan.to_dict() for scan in scans])
 
+#adds.txt endpoint
+@app.route('/ads.txt')
+def ads_txt():
+    return send_from_directory(directory=os.path.abspath('.'), path='ads.txt', mimetype='text/plain')
+
+# Endpoint to fix null values in FileAnalysis
 @app.route('/fix-null-values')
 def fix_null_values():
     with app.app_context():
