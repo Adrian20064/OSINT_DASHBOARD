@@ -2,6 +2,9 @@ import subprocess
 import json
 import os
 import shutil
+import requests
+import whois
+import dns.resolver
 from services.db_helper import save_to_db
 from flask import Blueprint, request, jsonify
 from databases.models import SuperShodanScan
@@ -9,7 +12,9 @@ from databases.db import db
 
 supershodan_bp = Blueprint('supershodan_bp', __name__)
 
-#procesing
+# ========================
+# Procesamiento de comandos
+# ========================
 def run_command(cmd, timeout=60):
     try:
         result = subprocess.run(
@@ -34,71 +39,107 @@ def run_command(cmd, timeout=60):
     except Exception as e:
         print("Exception:", str(e))
         return f"Error: {str(e)}"
-    
-#TheHarvester
+
+# ========================
+# TheHarvester (reemplazo con crt.sh)
+# ========================
 def run_theharvester(domain):
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    theharvester_path = os.path.join(BASE_DIR, "theHarvester", "theHarvester.py")
+    try:
+        url = f"https://crt.sh/?q=%25.{domain}&output=json"
+        response = requests.get(url, timeout=30)
+        if response.status_code != 200:
+            return {"error": f"Error consultando crt.sh: {response.status_code}"}
 
-    output_file = os.path.join(os.getenv('TEMP', '/tmp'), f'theharvester_{domain}.txt')
-    cmd = f'python "{theharvester_path}" -d {domain} -b anubis,baidu,bevigil,crtsh -f "{output_file}"'
+        data = response.json()
+        emails = set()
+        domains = set()
 
-    output = run_command(cmd, timeout=120)
-    print(f"Ejecutando: {cmd}")
-    print(f"Output comando:\n{output}")
-    print(f"Archivo generado existe? {os.path.exists(output_file)}")
+        for entry in data:
+            name_value = entry.get("name_value", "")
+            for val in name_value.split("\n"):
+                if "@" in val:
+                    emails.add(val.strip())
+                elif domain in val:
+                    domains.add(val.strip())
 
-    if os.path.exists(output_file):
-        with open(output_file, 'r', encoding='utf-8') as f:
-            data = f.read()
-        print("Datos cargados")
-        return {"raw_output": data}
+        return {
+            "emails_found": list(emails),
+            "domains_found": list(domains),
+            "raw_count": len(data)
+        }
 
-    print("No se generó el archivo de resultados")
-    return {"error": "No se generó el archivo de resultados"}
+    except Exception as e:
+        return {"error": f"Error al consultar certificados: {str(e)}"}
 
-#nmap
+# ========================
+# Remplazo: Nmap (no disponible) a  IP-API 
+# ========================
 def run_nmap(target):
+    error_message = "Nmap no está disponible para estos casos. Usando IP-API."
     try:
-        cmd = ["nmap", "-T4", "-Pn", "-sV", "--open", "-p", "21,22,80,443,8080", target]
-        return run_command(cmd)
+        ip_info = requests.get(f"http://ip-api.com/json/{target}", timeout=10)
+        if ip_info.status_code == 200:
+            data = ip_info.json()
+            return {
+                "nmap_error": error_message,
+                "ip_api_info": {
+                    "ip": data.get("query"),
+                    "isp": data.get("isp"),
+                    "org": data.get("org"),
+                    "country": data.get("country"),
+                    "city": data.get("city"),
+                    "region": data.get("regionName"),
+                    "timezone": data.get("timezone"),
+                    "lat": data.get("lat"),
+                    "lon": data.get("lon"),
+                    "as": data.get("as"),
+                    "reverse": data.get("reverse"),
+                    "status": data.get("status")
+                }
+            }
+        else:
+            return {
+                "nmap_error": error_message,
+                "ip_api_error": f"ip-api.com respondió con estado: {ip_info.status_code}"
+            }
     except Exception as e:
-        return {"error": str(e)}
+        return {
+            "nmap_error": error_message,
+            "ip_api_error": f"Excepción al consultar ip-api.com: {str(e)}"
+        }
 
-#Whois
+# ========================
+# Whois (con librería)
+# ========================
 def run_whois(target):
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    whois_exe = os.path.join(BASE_DIR, "whois64.exe")
-
-    if not os.path.exists(whois_exe):
-        return {"error": "whois64.exe no encontrado en backend/"}
-
     try:
-        cmd = [whois_exe, target]
-        return run_command(cmd)
+        w = whois.whois(target)
+        result = {k: str(v) for k, v in w.items() if v}
+        return result
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": f"Error en whois: {str(e)}"}
 
-#dns
-def run_dns_enum(target):
+# ========================
+# DNS Lookup (con dnspython)
+# ========================
+def run_dns_enum(domain):
     try:
-        tools = {}
-        if shutil.which("host"):
-            tools['host'] = f"host {target}"
-        if shutil.which("dig"):
-            tools['dig'] = f"dig {target} ANY +short"
-        if shutil.which("dnsrecon"):
-            tools['dnsrecon'] = f"dnsrecon -d {target}"
-
-        results = {}
-        for tool, cmd in tools.items():
-            results[tool] = run_command(cmd)
-
-        return results if results else {"error": "No se encontraron herramientas DNS disponibles"}
+        records = {}
+        for record_type in ["A", "AAAA", "MX", "NS", "TXT", "CNAME"]:
+            try:
+                answers = dns.resolver.resolve(domain, record_type)
+                records[record_type] = [r.to_text() for r in answers]
+            except dns.resolver.NoAnswer:
+                records[record_type] = []
+            except dns.resolver.NXDOMAIN:
+                records[record_type] = ["Dominio no encontrado"]
+        return records
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": f"Error DNS: {str(e)}"}
 
-#route
+# ========================
+# Ruta principal del escaneo
+# ========================
 @supershodan_bp.route('/api/super-osint', methods=['POST'])
 def super_osint():
     data = request.get_json()
@@ -133,7 +174,7 @@ def super_osint():
         if 'dns' in tools and ('.' in target or ':' in target):
             results['dns'] = run_dns_enum(target)
 
-        # Guardar resultados
+        # Guardar resultados en la base de datos
         scan_record.theharvester_results = results.get('theharvester')
         scan_record.nmap_results = results.get('nmap')
         scan_record.whois_results = results.get('whois')
