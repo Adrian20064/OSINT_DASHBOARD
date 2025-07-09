@@ -88,7 +88,7 @@ function hashText() {
     .catch((err) => showResult(hashRes, "Error: " + err));
 }
 
-// Super OSINT (Shodan + Whois + Nmap + DNS)
+// Super OSINT (Shodan + Whois + IP-API + DNS)
 async function runSuperShodan() {
   const target = document.getElementById("superTarget").value.trim();
   const tools = Array.from(
@@ -117,16 +117,29 @@ async function runSuperShodan() {
       body: JSON.stringify({ target, tools }),
     });
 
-    const data = await res.json(); // 🔧 Este faltaba
+    const contentType = res.headers.get("content-type") || "";
+    const isJson = contentType.includes("application/json");
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}: ${text.slice(0, 150)}...`);
+    }
+
+    if (!isJson) {
+      const text = await res.text();
+      throw new Error("Respuesta no es JSON. Contenido: " + text.slice(0, 150));
+    }
+
+    const data = await res.json();
     loader.classList.add("hidden");
 
     if (data.error) {
-      alert("Error: " + data.error);
+      alert("Error del servidor: " + data.error);
       return;
     }
 
-    const results = data.results || data; // Por si tu backend no envía `results` como clave
-    showSuperResults(results, tools); // ✅
+    const results = data.results || data;
+    showSuperResults(results, tools);
   } catch (err) {
     loader.classList.add("hidden");
     console.error("Error en runSuperShodan:", err);
