@@ -181,12 +181,7 @@ def super_osint():
             results['dns'] = run_dns_enum(target)
 
         # Guardar resultados en la base de datos
-        scan_record.theharvester_results = results.get('theharvester')
-        scan_record.nmap_results = results.get('nmap')
-        scan_record.whois_results = results.get('whois')
-        scan_record.dns_results = results.get('dns')
-        scan_record.is_complete = True
-        db.session.commit()
+        scan_record.save_results(results)
 
         return jsonify({
             'scan_id': scan_record.id,
